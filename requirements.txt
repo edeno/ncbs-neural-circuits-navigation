@@ -5,3 +5,9 @@ pandas
 jupyterlab
 pynwb
 hdmf
+dandi
+remfile
+h5py
+fsspec
+aiohttp
+requests

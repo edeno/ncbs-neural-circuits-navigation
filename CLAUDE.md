@@ -12,7 +12,7 @@ Course materials for **Neural Circuits for Navigation: Anatomy, Physiology, and 
 
 Notebooks are in `notebooks/` and numbered by week:
 
-- `01-navigation-circuits.ipynb` - Week 1: Navigation circuits and physiology
+- `01-loading-nwb-data.ipynb` - Week 1: Loading and exploring NWB data
 - `02-spike-stimulus-analysis.ipynb` - Week 2: Spike-Stimulus Analysis
 - `03-spectral-lfp.ipynb` - Week 3: Spectral properties of LFP
 - `04-decoding.ipynb` - Week 4: Decoding + Open data use and visualization
@@ -71,9 +71,47 @@ When adding new dependencies:
 
 ## Data Format
 
-This course uses NWB (Neurodata Without Borders) files for neural data. NWB is a standardized format for neurophysiology data that includes:
+This course uses NWB (Neurodata Without Borders) files for neural data, streamed from DANDI. NWB is a standardized format for neurophysiology data that includes:
 
 - Spike times and waveforms
 - LFP/continuous signals
 - Behavioral data (position, velocity)
 - Stimulus information
+
+## Coding Style
+
+This is a teaching repository. Code should demonstrate best practices for scientific Python:
+
+**General principles:**
+
+- Prefer clarity over cleverness
+- Use vectorized NumPy/SciPy operations over explicit loops when appropriate
+- Use list/dict comprehensions when they improve readability
+
+**Matplotlib:**
+
+- Use `plt.eventplot()` for spike rasters (not scatter)
+- Use `ax.set()` to set multiple properties at once
+- Use `ax.spines[["top", "right"]].set_visible(False)` for clean plots
+- Prefer the object-oriented interface (`fig, ax = plt.subplots()`)
+
+**Python idioms:**
+
+- Use `.get()` for safe dictionary access with defaults
+- Use `next()` with generator expressions to find first matching item
+- Use tuple unpacking for readable coordinate extraction
+- Use NumPy boolean masking for filtering arrays
+
+**Documentation:**
+
+- Include docstrings with NumPy-style parameter documentation
+- Add comments explaining *why*, not *what*
+
+## Notebook Editing
+
+Notebooks are paired with `.py` files via jupytext. To edit:
+
+```bash
+# Edit the .py file, then sync
+jupytext --sync notebooks/01-loading-nwb-data.ipynb
+```

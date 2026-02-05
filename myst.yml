@@ -16,7 +16,7 @@ project:
     - file: README.md
     - title: Course Materials
       children:
-        - file: notebooks/01-navigation-circuits.ipynb
+        - file: notebooks/01-loading-nwb-data.ipynb
         - file: notebooks/02-spike-stimulus-analysis.ipynb
         - file: notebooks/03-spectral-lfp.ipynb
         - file: notebooks/04-decoding.ipynb

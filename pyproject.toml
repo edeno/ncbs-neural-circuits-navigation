@@ -13,4 +13,10 @@ dependencies = [
     "pynwb",
     "hdmf",
     "jupyter-book>=2.1.2",
+    "dandi>=0.74.2",
+    "fsspec>=2026.1.0",
+    "requests>=2.32.5",
+    "aiohttp>=3.13.3",
+    "remfile>=0.1.13",
+    "h5py>=3.14.0",
 ]
