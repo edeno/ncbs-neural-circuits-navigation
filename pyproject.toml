@@ -1,0 +1,16 @@
+[project]
+name = "ncbs-neural-circuits-navigation"
+version = "0.1.0"
+description = "Course materials for Neural Circuits for Navigation: Anatomy, Physiology, and Computational Methods"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "pandas",
+    "jupyterlab",
+    "pynwb",
+    "hdmf",
+    "jupyter-book>=2.1.2",
+]

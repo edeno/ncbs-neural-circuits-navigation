@@ -1,0 +1,32 @@
+version: 1
+project:
+  title: Neural Circuits for Navigation
+  subtitle: Anatomy, Physiology, and Computational Methods
+  authors:
+    - name: Eric Denovellis
+    - name: Abhilasha Joshi
+  github: https://github.com/edeno/ncbs-neural-circuits-navigation
+  keywords:
+    - neuroscience
+    - navigation
+    - neural circuits
+    - hippocampus
+    - computational neuroscience
+  toc:
+    - file: README.md
+    - title: Course Materials
+      children:
+        - file: notebooks/01-navigation-circuits.ipynb
+        - file: notebooks/02-spike-stimulus-analysis.ipynb
+        - file: notebooks/03-spectral-lfp.ipynb
+        - file: notebooks/04-decoding.ipynb
+        - file: notebooks/05-clusterless-decoding.ipynb
+
+site:
+  template: book-theme
+  title: Neural Circuits for Navigation
+  options:
+    logo: ""
+  actions:
+    - title: Launch Binder
+      url: https://mybinder.org/v2/gh/edeno/ncbs-neural-circuits-navigation/main
