@@ -11,3 +11,5 @@ h5py
 fsspec
 aiohttp
 requests
+spectral-connectivity
+xarray

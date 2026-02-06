@@ -1975,6 +1975,7 @@ dependencies = [
     { name = "remfile" },
     { name = "requests" },
     { name = "scipy" },
+    { name = "spectral-connectivity" },
 ]
 
 [package.metadata]
@@ -1993,6 +1994,7 @@ requires-dist = [
     { name = "remfile", specifier = ">=0.1.13" },
     { name = "requests", specifier = ">=2.32.5" },
     { name = "scipy" },
+    { name = "spectral-connectivity", specifier = ">=2.0.0" },
 ]
 
 [[package]]
@@ -3088,6 +3090,21 @@ wheels = [
 ]
 
 [[package]]
+name = "spectral-connectivity"
+version = "2.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "scipy" },
+    { name = "xarray" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/24/89/1005e90800b4e278e8ff659ddd5c3611a35e1e27c5131ec593aa1e383351/spectral_connectivity-2.0.0.tar.gz", hash = "sha256:521cd70ab01195c13e7ec1adeff96fee56e07dcd63974951420af9e7519bd45a", size = 5464032, upload-time = "2025-10-27T14:36:34.472Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d3/fe/9ba615a3035b470c1167cbf478a17e2c98789fb6537770397fe858a1d005/spectral_connectivity-2.0.0-py3-none-any.whl", hash = "sha256:d78c77818bbf715dbdaa09e425ba40071085b080ee6c51a0b4f3075ffc2626f7", size = 71622, upload-time = "2025-10-27T14:36:32.801Z" },
+]
+
+[[package]]
 name = "stack-data"
 version = "0.6.3"
 source = { registry = "https://pypi.org/simple" }
@@ -3352,6 +3369,20 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/1e/06/b500bfc38a4f82d89f34a13069e748c82c5430d365d9e6b75afb3ab74457/wrapt-2.1.1-cp314-cp314t-win_amd64.whl", hash = "sha256:f76bc12c583ab01e73ba0ea585465a41e48d968f6d1311b4daec4f8654e356e3", size = 63855, upload-time = "2026-02-03T02:12:15.47Z" },
     { url = "https://files.pythonhosted.org/packages/d9/cc/5f6193c32166faee1d2a613f278608e6f3b95b96589d020f0088459c46c9/wrapt-2.1.1-cp314-cp314t-win_arm64.whl", hash = "sha256:7ea74fc0bec172f1ae5f3505b6655c541786a5cabe4bbc0d9723a56ac32eb9b9", size = 60443, upload-time = "2026-02-03T02:11:30.869Z" },
     { url = "https://files.pythonhosted.org/packages/c4/da/5a086bf4c22a41995312db104ec2ffeee2cf6accca9faaee5315c790377d/wrapt-2.1.1-py3-none-any.whl", hash = "sha256:3b0f4629eb954394a3d7c7a1c8cca25f0b07cefe6aa8545e862e9778152de5b7", size = 43886, upload-time = "2026-02-03T02:11:45.048Z" },
+]
+
+[[package]]
+name = "xarray"
+version = "2026.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "pandas" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f5/85/113ff1e2cde9e8a5b13c2f0ef4e9f5cd6ca3a036b6452f4dd523419289b5/xarray-2026.1.0.tar.gz", hash = "sha256:0c9814761f9d9a9545df37292d3fda89f83201f3e02ae0f09f03313d9cfdd5e2", size = 3107024, upload-time = "2026-01-28T17:49:03.822Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7d/8e/952a351c10df395d9bab850f611f4368834ae9104d6449049f5a49e00925/xarray-2026.1.0-py3-none-any.whl", hash = "sha256:5fcc03d3ed8dfb662aa254efe6cd65efc70014182bbc2126e4b90d291d970d41", size = 1403009, upload-time = "2026-01-28T17:49:01.538Z" },
 ]
 
 [[package]]

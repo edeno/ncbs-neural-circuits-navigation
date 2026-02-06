@@ -19,4 +19,5 @@ dependencies = [
     "aiohttp>=3.13.3",
     "remfile>=0.1.13",
     "h5py>=3.14.0",
+    "spectral-connectivity>=2.0.0",
 ]
