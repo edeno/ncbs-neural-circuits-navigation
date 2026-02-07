@@ -13,3 +13,5 @@ aiohttp
 requests
 spectral-connectivity
 xarray
+statsmodels
+patsy
