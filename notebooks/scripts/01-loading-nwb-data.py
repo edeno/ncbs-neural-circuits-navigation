@@ -100,7 +100,9 @@ import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 from dandi.dandiapi import DandiAPIClient
+from numpy.typing import NDArray
 from pynwb import NWBHDF5IO
+from pynwb.misc import Units
 from remfile import File as RemoteFile
 
 # %% [markdown]
@@ -277,7 +279,9 @@ TIME_WINDOW = (0, 60)  # First 60 seconds
 N_UNITS_TO_PLOT = 20
 
 
-def get_spike_times_in_window(units_table, unit_idx, time_window):
+def get_spike_times_in_window(
+    units_table: Units, unit_idx: int, time_window: tuple[float, float]
+) -> NDArray[np.floating]:
     """Extract spike times for a unit within a time window.
 
     Parameters

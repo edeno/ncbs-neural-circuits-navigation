@@ -64,6 +64,7 @@ import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 from dandi.dandiapi import DandiAPIClient
+from numpy.typing import NDArray
 from pynwb import NWBHDF5IO
 from remfile import File as RemoteFile
 from scipy.signal import correlate
@@ -277,7 +278,11 @@ psth_bins = np.arange(psth_window[0], psth_window[1] + psth_bin_size, psth_bin_s
 bin_centers = psth_bins[:-1] + psth_bin_size / 2
 
 
-def compute_trial_aligned_spikes(spike_times, trial_times, window):
+def compute_trial_aligned_spikes(
+    spike_times: NDArray[np.floating],
+    trial_times: NDArray[np.floating],
+    window: tuple[float, float],
+) -> list[NDArray[np.floating]]:
     """Align spike times to trial events.
 
     Parameters
@@ -321,7 +326,9 @@ print(f"Right trials: {len(right_aligned)}")
 
 # %%
 # Compute PSTH (spike counts per bin, averaged across trials)
-def compute_psth(aligned_spikes, bins):
+def compute_psth(
+    aligned_spikes: list[NDArray[np.floating]], bins: NDArray[np.floating]
+) -> NDArray[np.floating]:
     """Compute peri-stimulus time histogram.
 
     Parameters
@@ -778,7 +785,7 @@ plt.colorbar(im, ax=ax, label="Firing Rate (Hz)")
 # though this is a rough guide rather than a formal statistical test.
 
 # %%
-def autocorr(x: np.ndarray, lags: int = 100) -> np.ndarray:
+def autocorr(x: NDArray[np.floating], lags: int = 100) -> NDArray[np.floating]:
     """Compute the autocorrelation of a time series.
 
     Parameters
