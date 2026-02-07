@@ -13,7 +13,8 @@ Course materials for **Neural Circuits for Navigation: Anatomy, Physiology, and 
 Notebooks are in `notebooks/` and numbered by week:
 
 - `01-loading-nwb-data.ipynb` - Week 1: Loading and exploring NWB data
-- `02-spike-stimulus-analysis.ipynb` - Week 2: Spike-Stimulus Analysis
+- `02a-spike-stimulus-analysis.ipynb` - Week 2a: Spike-Stimulus Analysis
+- `02b-poisson-regression.ipynb` - Week 2b: Poisson Regression / GLMs
 - `03-spectral-lfp.ipynb` - Week 3: Spectral properties of LFP
 - `04-decoding.ipynb` - Week 4: Decoding + Open data use and visualization
 - `05-clusterless-decoding.ipynb` - Week 5: Clusterless Decoding Approaches
@@ -66,6 +67,7 @@ When adding new dependencies:
 - **numpy/scipy**: Numerical computing and signal processing
 - **matplotlib**: Visualization
 - **pandas**: Data manipulation
+- **statsmodels/patsy**: GLM fitting and formula interface
 - **jupyterlab**: Interactive notebooks
 - **jupyter-book**: Build course website
 
@@ -109,9 +111,32 @@ This is a teaching repository. Code should demonstrate best practices for scient
 
 ## Notebook Editing
 
-Notebooks are paired with `.py` files via jupytext. To edit:
+Notebooks (`.ipynb`) are paired with Python scripts (`.py`) via **jupytext** for reliable editing and version control. Use the `jupyter-notebook-editor` skill for editing notebooks.
+
+**File structure:**
+
+```
+notebooks/
+├── 01-loading-nwb-data.ipynb
+├── 02a-spike-stimulus-analysis.ipynb
+├── ...
+└── scripts/
+    ├── 01-loading-nwb-data.py
+    ├── 02a-spike-stimulus-analysis.py
+    └── ...
+```
+
+**To edit a notebook manually:**
 
 ```bash
-# Edit the .py file, then sync
-jupytext --sync notebooks/01-loading-nwb-data.ipynb
+# Edit the .py file in notebooks/scripts/, then sync from notebooks/ directory
+cd notebooks
+jupytext --sync scripts/01-loading-nwb-data.py
 ```
+
+**Key points:**
+
+- Edit the `.py` file (not the `.ipynb` directly) for reliable text-based editing
+- The `.py` files use jupytext "percent" format with `# %%` cell markers
+- Run `jupytext --sync` from the `notebooks/` directory to update the `.ipynb`
+- Both files should be committed to git
