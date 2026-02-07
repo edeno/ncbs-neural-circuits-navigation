@@ -12,7 +12,8 @@ Course materials for **Neural Circuits for Navigation: Anatomy, Physiology, and 
 | Week | Topic | Notebook |
 |------|-------|----------|
 | 1 | Loading and Exploring NWB Data | [01-loading-nwb-data.ipynb](notebooks/01-loading-nwb-data.ipynb) |
-| 2 | Spike-Stimulus Analysis | [02-spike-stimulus-analysis.ipynb](notebooks/02-spike-stimulus-analysis.ipynb) |
+| 2a | Spike-Stimulus Analysis | [02a-spike-stimulus-analysis.ipynb](notebooks/02a-spike-stimulus-analysis.ipynb) |
+| 2b | Poisson Regression / GLMs | [02b-poisson-regression.ipynb](notebooks/02b-poisson-regression.ipynb) |
 | 3 | Spectral properties of LFP | [03-spectral-lfp.ipynb](notebooks/03-spectral-lfp.ipynb) |
 | 4 | Decoding + Open data use and visualization | [04-decoding.ipynb](notebooks/04-decoding.ipynb) |
 | 5 | Clusterless Decoding Approaches | [05-clusterless-decoding.ipynb](notebooks/05-clusterless-decoding.ipynb) |
@@ -29,7 +30,7 @@ Click the Binder badge above to launch notebooks in your browser. Note: Binder h
 Click the Colab badge above, or open any notebook directly in Colab. Run this cell first to install dependencies:
 
 ```python
-!pip install -q pynwb hdmf dandi remfile h5py fsspec aiohttp requests
+!pip install -q pynwb hdmf dandi remfile h5py fsspec aiohttp requests spectral-connectivity statsmodels patsy xarray
 ```
 
 **Option 3: Local installation**
