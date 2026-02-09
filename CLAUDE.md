@@ -37,7 +37,7 @@ uv run jupyter-book build .
 # Preview site locally
 uv run myst start
 
-# Add a new dependency (update both pyproject.toml and requirements.txt)
+# Add a new dependency
 uv add <package-name>
 ```
 
@@ -48,18 +48,8 @@ The course uses Jupyter Book 2 (MyST) to generate a navigable website from noteb
 Students can access materials three ways:
 
 1. **Static website** - Read-only view (after deploying to GitHub Pages)
-2. **Binder** - Interactive notebooks, no installation required
+2. **Google Colab** - Interactive notebooks, no installation required
 3. **Local** - Clone repo and run `uv sync`
-
-## Binder Setup
-
-Binder uses `requirements.txt` for dependencies. A GitHub Action (`.github/workflows/binder.yml`) pre-builds the image when dependencies change.
-
-When adding new dependencies:
-
-1. Add to `pyproject.toml` via `uv add <package>`
-2. Update `requirements.txt` to match
-3. Push to main - the GitHub Action will pre-build the Binder image
 
 ## Key Dependencies
 
