@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.18.1
+#       jupytext_version: 1.19.1
 #   kernelspec:
 #     display_name: ncbs-neural-circuits-navigation
 #     language: python
@@ -992,10 +992,9 @@ print(f"Mean ISI: {isi.mean() * 1000:.1f} ms")
 #
 # ### Next Steps
 #
-# In Week 3, we'll analyze the **local field potential (LFP)** and its spectral
-# properties. We'll examine theta oscillations, which coordinate the timing of
-# place cell spikes and are critical for navigation. The Petersen & Buzsáki study
-# showed that theta phase—not clock time—organizes hippocampal cell assemblies.
+# In notebook 02b, we'll use **Poisson regression (GLMs)** to model spike counts
+# as a function of position, speed, and direction — moving from descriptive analysis
+# to statistical modeling of neural tuning.
 
 # %% [markdown]
 # ## Cleanup

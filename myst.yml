@@ -29,6 +29,4 @@ site:
   title: Neural Circuits for Navigation
   options:
     logo: ""
-  actions:
-    - title: Launch Binder
-      url: https://mybinder.org/v2/gh/edeno/ncbs-neural-circuits-navigation/main
+  actions: []
