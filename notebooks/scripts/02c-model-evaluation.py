@@ -499,10 +499,11 @@ print("\nNote: Small p-value → model does NOT fit well")
 # theoretical Uniform(0,1) CDF (the 45° line). Deviations from the diagonal
 # indicate model misfit:
 #
-# - **Below the diagonal at small values**: Model underestimates short ISIs
-#   (too few predicted short intervals → possibly missing refractory period)
-# - **Above the diagonal at large values**: Model overestimates rate
-#   (predicts more spikes than observed in some intervals)
+# - **Above the diagonal at small values** (early excess): Model underestimates
+#   short ISIs — predicting fewer short intervals than observed, possibly missing
+#   refractory period or bursting dynamics
+# - **Below the diagonal at large values** (late deficit): Model overestimates
+#   rate in some intervals — predicting more spikes than actually occur
 # - **Systematic S-curve**: General model mis-specification
 #
 # The dashed lines show approximate 95% confidence bounds from the KS test.

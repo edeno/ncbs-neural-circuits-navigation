@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.18.1
+#       jupytext_version: 1.19.1
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -153,8 +153,8 @@ print(f"Good quality units: {len(good_unit_indices)}")
 #
 # The hippocampus contains two main cell types:
 #
-# - **Pyramidal cells** (place cells): Low mean firing rate (< 2 Hz), but fire
-#   strongly (> 5 Hz) when the animal is in their place field
+# - **Pyramidal cells** (place cells): Low mean firing rate (typically < 5 Hz),
+#   but fire strongly (> 5 Hz peak) when the animal is in their place field
 # - **Interneurons**: High mean firing rate (> 5-10 Hz), fire broadly across space
 #
 # For decoding, we want pyramidal cells because they have spatially localized
@@ -412,7 +412,7 @@ for i in range(len(place_fields)):
 # This ensures we use neurons with clear spatial tuning for decoding.
 #
 # The two-step filtering process:
-# 1. **Mean rate < 2 Hz**: Excludes interneurons (done earlier)
+# 1. **Mean rate < 5 Hz**: Excludes interneurons (done earlier)
 # 2. **Peak rate > 5 Hz**: Ensures spatial selectivity (done here)
 
 # %%

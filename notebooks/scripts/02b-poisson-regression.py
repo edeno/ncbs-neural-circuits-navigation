@@ -1069,6 +1069,12 @@ best_idx = np.argmin([m[1].aic for m in models])
 print(f"\nBest model by AIC: {models[best_idx][0]}")
 
 # %% [markdown]
+# **Important**: AIC can compare *any* models fit to the same data, including non-nested
+# models (e.g., "Direction only" vs "Speed only"). The likelihood ratio test (LRT),
+# by contrast, can only compare **nested** models — where one model is a special case
+# of the other. We explore this distinction further in notebook 02c.
+
+# %% [markdown]
 # ## Goodness-of-Fit: Comparing to Raw Data
 #
 # Let's visualize how well our best model captures the observed firing patterns.
