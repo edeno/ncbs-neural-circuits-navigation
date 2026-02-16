@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.18.1
+#       jupytext_version: 1.19.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -172,7 +172,7 @@ print(f"Unit {unit_idx}: {len(spike_times_epoch)} spikes during position trackin
 
 # %%
 # Define time bins
-BIN_SIZE = 0.025  # 25 ms bins (40 Hz)
+BIN_SIZE = 0.002  # 2 ms bins (500 Hz) - small enough that at most one spike per bin
 
 bin_edges = np.arange(
     position_timestamps.min(), position_timestamps.max() + BIN_SIZE, BIN_SIZE
@@ -628,12 +628,10 @@ y_edges = np.linspace(np.nanmin(y_position), np.nanmax(y_position), N_POS_BINS +
 # Compute occupancy and spike counts
 occupancy_2d, _, _ = np.histogram2d(df["x_position"], df["y_position"], bins=[x_edges, y_edges])
 
-# Weight by spike counts for spike map
-spike_map = np.zeros_like(occupancy_2d)
-for i, row in df.iterrows():
-    x_idx = np.clip(np.searchsorted(x_edges, row["x_position"]) - 1, 0, N_POS_BINS - 1)
-    y_idx = np.clip(np.searchsorted(y_edges, row["y_position"]) - 1, 0, N_POS_BINS - 1)
-    spike_map[x_idx, y_idx] += row["spike_count"]
+# Compute spike-weighted position histogram using np.histogram2d with weights
+spike_map, _, _ = np.histogram2d(
+    df["x_position"], df["y_position"], bins=[x_edges, y_edges], weights=df["spike_count"]
+)
 
 # Compute firing rate (occupancy normalized)
 with np.errstate(divide="ignore", invalid="ignore"):
@@ -749,11 +747,9 @@ y_edges_glm = y_bin_edges
 
 # Recompute histogram rate map at GLM resolution
 occupancy_glm, _, _ = np.histogram2d(df["x_position"], df["y_position"], bins=[x_edges_glm, y_edges_glm])
-spike_map_glm_hist = np.zeros((N_BINS_GLM, N_BINS_GLM))
-for i, row in df.iterrows():
-    x_idx = np.clip(int(row["x_bin"]), 0, N_BINS_GLM - 1)
-    y_idx = np.clip(int(row["y_bin"]), 0, N_BINS_GLM - 1)
-    spike_map_glm_hist[x_idx, y_idx] += row["spike_count"]
+spike_map_glm_hist, _, _ = np.histogram2d(
+    df["x_position"], df["y_position"], bins=[x_edges_glm, y_edges_glm], weights=df["spike_count"]
+)
 
 with np.errstate(divide="ignore", invalid="ignore"):
     rate_map_hist = spike_map_glm_hist / occupancy_glm / BIN_SIZE
@@ -1192,9 +1188,9 @@ plt.show()
 #
 # ### Next Steps
 #
-# In Week 3, we'll analyze the **local field potential (LFP)** and its spectral
-# properties. We'll examine theta oscillations, which coordinate the timing of
-# place cell spikes.
+# In the next notebook (02c), we'll learn how to **evaluate and diagnose** Poisson
+# regression models using the time-rescaling theorem (KS test), residual analysis,
+# and the iterative model refinement cycle.
 
 # %% [markdown]
 # ## Cleanup

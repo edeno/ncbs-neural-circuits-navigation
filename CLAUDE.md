@@ -15,6 +15,7 @@ Notebooks are in `notebooks/` and numbered by week:
 - `01-loading-nwb-data.ipynb` - Week 1: Loading and exploring NWB data
 - `02a-spike-stimulus-analysis.ipynb` - Week 2a: Spike-Stimulus Analysis
 - `02b-poisson-regression.ipynb` - Week 2b: Poisson Regression / GLMs
+- `02c-model-evaluation.ipynb` - Week 2c: Model Evaluation & Diagnostics
 - `03-spectral-lfp.ipynb` - Week 3: Spectral properties of LFP
 - `04-decoding.ipynb` - Week 4: Decoding + Open data use and visualization
 - `05-clusterless-decoding.ipynb` - Week 5: Clusterless Decoding Approaches
