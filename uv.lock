@@ -2028,6 +2028,7 @@ dependencies = [
     { name = "scipy" },
     { name = "spectral-connectivity" },
     { name = "statsmodels" },
+    { name = "time-rescale" },
     { name = "xarray" },
 ]
 
@@ -2051,6 +2052,7 @@ requires-dist = [
     { name = "scipy" },
     { name = "spectral-connectivity", specifier = ">=2.0.0" },
     { name = "statsmodels", specifier = ">=0.14.0" },
+    { name = "time-rescale", specifier = ">=0.2.2" },
     { name = "xarray", specifier = ">=2024.1.0" },
 ]
 
@@ -3281,6 +3283,20 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/b7/4d/08c89e34946fce2aec4fbb45c9016efd5f4d7f24af8e5d93296e935631d8/threadpoolctl-3.6.0.tar.gz", hash = "sha256:8ab8b4aa3491d812b623328249fab5302a68d2d71745c8a4c719a2fcaba9f44e", size = 21274, upload-time = "2025-03-13T13:49:23.031Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/32/d5/f9a850d79b0851d1d4ef6456097579a9005b31fea68726a4ae5f2d82ddd9/threadpoolctl-3.6.0-py3-none-any.whl", hash = "sha256:43a0b8fd5a2928500110039e43a5eed8480b918967083ea48dc3ab9f13c4a7fb", size = 18638, upload-time = "2025-03-13T13:49:21.846Z" },
+]
+
+[[package]]
+name = "time-rescale"
+version = "0.2.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "scipy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9b/0d/fe12b5d3a22bbb8cc8de90ff9ebcae15b24969c060286befe31f0f4efc22/time_rescale-0.2.2.tar.gz", hash = "sha256:2860597b0339835c7e79679717e103b86cfcfac6e7db84437f2e3e41bf8f975e", size = 6056, upload-time = "2021-10-20T16:31:35.537Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/57/eb/6982c625e2ffa56533542ff7252a840b7f74b2926d624300fd82d102139e/time_rescale-0.2.2-py3-none-any.whl", hash = "sha256:d2b511f49d59420e08b4f58d923f9ba7af04f27c2538fc5ba06cce7673ed4c10", size = 5021, upload-time = "2021-10-20T16:31:34.194Z" },
 ]
 
 [[package]]

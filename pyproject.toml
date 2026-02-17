@@ -24,4 +24,5 @@ dependencies = [
     "patsy>=0.5.0",
     "xarray>=2024.1.0",
     "jupytext>=1.16.0",
+    "time-rescale>=0.2.2",
 ]

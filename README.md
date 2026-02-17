@@ -24,7 +24,7 @@ Course materials for **Neural Circuits for Navigation: Anatomy, Physiology, and 
 Click the Colab badge next to any notebook in the table above. Run this cell first to install dependencies:
 
 ```python
-!pip install -q pynwb hdmf dandi remfile h5py fsspec aiohttp requests spectral-connectivity statsmodels patsy xarray
+!pip install -q pynwb hdmf dandi remfile h5py fsspec aiohttp requests statsmodels patsy time-rescale
 ```
 
 ### Local installation

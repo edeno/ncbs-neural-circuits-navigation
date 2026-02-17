@@ -68,6 +68,7 @@ if "google.colab" in sys.modules:
             "requests",
             "statsmodels",
             "patsy",
+            "time-rescale",
         ]
     )
 
@@ -895,6 +896,60 @@ for i in range(1, len(models)):
 # 5. **Cross-validated prediction**: Split data into first and second halves.
 #    Fit on the first half, compute log-likelihood on the second half. Does
 #    the model that wins on AIC also win on held-out data?
+
+# %% [markdown]
+# ## Using the `time_rescale` Package
+#
+# Above, we implemented the time-rescaling KS test and autocorrelation analysis
+# from scratch to understand the mechanics. In practice, the
+# [`time_rescale`](https://github.com/Eden-Kramer-Lab/time_rescale) package
+# provides a clean interface for these diagnostics.
+#
+# The key insight: `TimeRescaling` takes the model's **conditional intensity**
+# (expected spike count per bin, i.e., `fit.mu`) and a **binary spike indicator**,
+# then handles the rescaling, KS plot, and autocorrelation analysis automatically.
+
+# %%
+from time_rescale import TimeRescaling
+
+# The package expects:
+#   conditional_intensity: expected spike count per bin (fit.mu, NOT rate in Hz)
+#   is_spike: binary array (1 if spike, 0 otherwise)
+
+is_spike = df["spike_count"].values.astype(bool)
+
+# Compare the constant model vs the best model
+fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+
+for col, (name, res) in enumerate([("Constant", results_0), ("Position + Speed + Dir", results_3)]):
+    rescaled = TimeRescaling(
+        conditional_intensity=res.mu,
+        is_spike=is_spike,
+    )
+
+    rescaled.plot_ks(ax=axes[0, col])
+    axes[0, col].set_title(f"{name}\nKS stat = {rescaled.ks_statistic():.4f}")
+
+    rescaled.plot_rescaled_ISI_autocorrelation(ax=axes[1, col])
+    axes[1, col].set_title(f"{name}")
+
+fig.suptitle(f"Unit {unit_idx}: time_rescale Diagnostics", y=1.02)
+plt.tight_layout()
+plt.show()
+
+# %% [markdown]
+# The `time_rescale` package also supports:
+#
+# - **`trial_id`**: If your data has trial structure, pass trial labels to
+#   handle ISIs that span trial boundaries correctly.
+# - **`adjust_for_short_trials=True`**: Adjusts for censored ISIs when trials
+#   are short and the neuron fires infrequently (Wiener, 2003).
+# - **`uniform_rescaled_ISIs()`**: Returns the raw rescaled ISI values for
+#   custom analysis.
+# - **`ks_statistic()`**: Returns the KS statistic for programmatic comparison.
+#
+# For more details, see the
+# [package documentation](https://github.com/Eden-Kramer-Lab/time_rescale).
 
 # %% [markdown]
 # ## Summary
