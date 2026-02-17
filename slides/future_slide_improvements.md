@@ -44,6 +44,7 @@
   - choice of smoothing in the encoding model
   - assumptions of this model (correct encoding, conditional independence of neurons, etc.)
   - we use the expected rate from the encoding model, but this does not take into account uncertainty in the encoding model parameters (e.g. place field locations and shapes)
+  - How does linearization of the track impact decoding?
 - Examples with different priors
 - Problems with Bayesian decoding of position from place cell activity
   - No spike likelihood without full place field coverage (biases in cell sampling)
@@ -88,6 +89,7 @@
 - State space models
   - Adding a transition matrix as a prior
   - causal vs. acausal decoding
+  - How does linearization of the track impact decoding?
 - Issues with continuous transition models
   - Can't capture jumps in position (e.g. replay)
   - Can't capture different dynamics during theta vs. replay
