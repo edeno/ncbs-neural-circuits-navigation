@@ -510,7 +510,7 @@ print("\nNote: Small p-value → model does NOT fit well")
 # The dashed lines show approximate 95% confidence bounds from the KS test.
 
 # %%
-fig, axes = plt.subplots(1, len(models), figsize=(4 * len(models), 4), sharey=True)
+fig, axes = plt.subplots(1, len(models), figsize=(4 * len(models), 4), sharey=True, constrained_layout=True)
 
 for ax, (name, _) in zip(axes, models):
     z = ks_results[name]
@@ -535,8 +535,6 @@ for ax, (name, _) in zip(axes, models):
 
 axes[0].set_ylabel("Empirical CDF")
 fig.suptitle(f"Unit {unit_idx}: KS Plots (Time-Rescaling Theorem)", y=1.02)
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # ### Autocorrelation of Rescaled ISIs
@@ -567,7 +565,7 @@ def autocorr(x, lags=50):
     return xcorr[: lags + 1]
 
 
-fig, axes = plt.subplots(1, len(models), figsize=(4 * len(models), 3), sharey=True)
+fig, axes = plt.subplots(1, len(models), figsize=(4 * len(models), 3), sharey=True, constrained_layout=True)
 
 for ax, (name, _) in zip(axes, models):
     z = ks_results[name]
@@ -587,8 +585,6 @@ for ax, (name, _) in zip(axes, models):
 
 axes[0].set_ylabel("Autocorrelation")
 fig.suptitle(f"Unit {unit_idx}: Autocorrelation of Rescaled ISIs", y=1.02)
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # ## Method 5: Residual Analysis
@@ -628,7 +624,7 @@ print(f"  Std residual: {residuals.std():.6f}")
 # the model is missing structure related to that covariate.
 
 # %%
-fig, axes = plt.subplots(1, 3, figsize=(14, 4))
+fig, axes = plt.subplots(1, 3, figsize=(14, 4), constrained_layout=True)
 
 # Residuals vs x position
 ax = axes[0]
@@ -658,8 +654,7 @@ ax.errorbar(
     capsize=2,
 )
 ax.axhline(0, color="red", linestyle="--", linewidth=1)
-ax.set(xlabel="X position (cm)", ylabel="Mean residual")
-ax.set_title("Residuals vs X Position")
+ax.set(xlabel="X position (cm)", ylabel="Mean residual", title="Residuals vs X Position")
 ax.spines[["top", "right"]].set_visible(False)
 
 # Residuals vs speed
@@ -690,8 +685,7 @@ ax.errorbar(
     capsize=2,
 )
 ax.axhline(0, color="red", linestyle="--", linewidth=1)
-ax.set(xlabel="Speed (cm/s)", ylabel="Mean residual")
-ax.set_title("Residuals vs Speed")
+ax.set(xlabel="Speed (cm/s)", ylabel="Mean residual", title="Residuals vs Speed")
 ax.spines[["top", "right"]].set_visible(False)
 
 # Residuals vs direction
@@ -709,13 +703,10 @@ ax.bar([0, 1], means, yerr=ses, capsize=5, color=["#0072B2", "#D55E00"], alpha=0
 ax.axhline(0, color="red", linestyle="--", linewidth=1)
 ax.set_xticks([0, 1])
 ax.set_xticklabels(["Leftward", "Rightward"])
-ax.set_ylabel("Mean residual")
-ax.set_title("Residuals vs Direction")
+ax.set(ylabel="Mean residual", title="Residuals vs Direction")
 ax.spines[["top", "right"]].set_visible(False)
 
 fig.suptitle(f"Unit {unit_idx}: Residual Analysis ({best_name})", y=1.02)
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # ### Temporal Autocorrelation of Residuals
@@ -730,7 +721,7 @@ plt.show()
 n_lags = 100
 residual_ac = autocorr(residuals, lags=n_lags)
 
-fig, ax = plt.subplots(figsize=(10, 4))
+fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
 
 lags = np.arange(1, n_lags + 1) * BIN_SIZE * 1000  # Convert to ms
 ax.bar(lags, residual_ac[1:], width=BIN_SIZE * 1000, color="steelblue")
@@ -748,9 +739,6 @@ ax.set(
 )
 ax.legend()
 ax.spines[["top", "right"]].set_visible(False)
-
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # ## The Model Refinement Cycle
@@ -792,7 +780,7 @@ for i in range(len(speed_bin_centers_res)):
         mean_resid_by_speed.append(np.nan)
         se_resid_by_speed.append(np.nan)
 
-fig, ax = plt.subplots(figsize=(8, 4))
+fig, ax = plt.subplots(figsize=(8, 4), constrained_layout=True)
 
 valid = ~np.isnan(mean_resid_by_speed)
 ax.errorbar(
@@ -812,9 +800,6 @@ ax.set(
 )
 ax.spines[["top", "right"]].set_visible(False)
 
-plt.tight_layout()
-plt.show()
-
 print("If residuals show a trend with speed, this suggests adding speed to the model.")
 
 # %% [markdown]
@@ -827,7 +812,7 @@ residuals_pos_speed = df["spike_count"].values - results_2.fittedvalues.values
 left_resid_2 = residuals_pos_speed[df["direction"] == "leftward"]
 right_resid_2 = residuals_pos_speed[df["direction"] == "rightward"]
 
-fig, ax = plt.subplots(figsize=(6, 4))
+fig, ax = plt.subplots(figsize=(6, 4), constrained_layout=True)
 
 means_2 = [left_resid_2.mean(), right_resid_2.mean()]
 ses_2 = [
@@ -839,12 +824,8 @@ ax.bar([0, 1], means_2, yerr=ses_2, capsize=5, color=["#0072B2", "#D55E00"], alp
 ax.axhline(0, color="red", linestyle="--", linewidth=1)
 ax.set_xticks([0, 1])
 ax.set_xticklabels(["Leftward", "Rightward"])
-ax.set_ylabel("Mean residual")
-ax.set_title(f"Unit {unit_idx}: Position + Speed Model → Residuals vs Direction")
+ax.set(ylabel="Mean residual", title=f"Unit {unit_idx}: Position + Speed Model → Residuals vs Direction")
 ax.spines[["top", "right"]].set_visible(False)
-
-plt.tight_layout()
-plt.show()
 
 print("If residuals differ by direction, this suggests adding direction to the model.")
 
@@ -919,7 +900,7 @@ from time_rescale import TimeRescaling
 is_spike = df["spike_count"].values.astype(bool)
 
 # Compare the constant model vs the best model
-fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+fig, axes = plt.subplots(2, 2, figsize=(10, 8), constrained_layout=True)
 
 for col, (name, res) in enumerate([("Constant", results_0), ("Position + Speed + Dir", results_3)]):
     rescaled = TimeRescaling(
@@ -934,8 +915,6 @@ for col, (name, res) in enumerate([("Constant", results_0), ("Position + Speed +
     axes[1, col].set_title(f"{name}")
 
 fig.suptitle(f"Unit {unit_idx}: time_rescale Diagnostics", y=1.02)
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # The `time_rescale` package also supports:

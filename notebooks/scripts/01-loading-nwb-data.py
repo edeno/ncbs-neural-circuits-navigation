@@ -323,7 +323,7 @@ spike_times_list = [
 ]
 
 # Create raster plot
-fig, ax = plt.subplots(figsize=(12, 6))
+fig, ax = plt.subplots(figsize=(12, 6), constrained_layout=True)
 
 ax.eventplot(
     spike_times_list,
@@ -343,9 +343,6 @@ ax.set(
 )
 
 ax.spines[["top", "right"]].set_visible(False)
-
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # ## Extracting Position Data
@@ -388,7 +385,7 @@ position_data = spatial_series.data[:]
 
 x_position, y_position = position_data[:, 0], position_data[:, 1]
 
-fig, ax = plt.subplots(figsize=(8, 8))
+fig, ax = plt.subplots(figsize=(8, 8), constrained_layout=True)
 
 ax.plot(x_position, y_position, linewidth=0.5, alpha=0.7, color="steelblue")
 
@@ -400,9 +397,6 @@ ax.set(
 )
 
 ax.spines[["top", "right"]].set_visible(False)
-
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # ## Speed and Acceleration
@@ -457,7 +451,7 @@ else:
 t_start = speed_timestamps[0]
 time_mask = speed_timestamps < (t_start + 60)
 
-fig, ax = plt.subplots(figsize=(12, 4))
+fig, ax = plt.subplots(figsize=(12, 4), constrained_layout=True)
 
 ax.plot(
     speed_timestamps[time_mask] - t_start,
@@ -473,9 +467,6 @@ ax.set(
 )
 
 ax.spines[["top", "right"]].set_visible(False)
-
-plt.tight_layout()
-plt.show()
 
 # %%
 # Visualize acceleration over time
@@ -493,7 +484,7 @@ else:
 t_start = acceleration_timestamps[0]
 time_mask = acceleration_timestamps < (t_start + 60)
 
-fig, ax = plt.subplots(figsize=(12, 4))
+fig, ax = plt.subplots(figsize=(12, 4), constrained_layout=True)
 
 ax.plot(
     acceleration_timestamps[time_mask] - t_start,
@@ -509,9 +500,6 @@ ax.set(
 )
 
 ax.spines[["top", "right"]].set_visible(False)
-
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # ## Trial Information
@@ -617,7 +605,7 @@ print(f"  Sampling rate: {lfp_rate} Hz")
 
 # %%
 # Plot LFP trace
-fig, ax = plt.subplots(figsize=(12, 4))
+fig, ax = plt.subplots(figsize=(12, 4), constrained_layout=True)
 
 ax.plot(lfp_time, lfp_segment, linewidth=0.5, color="black")
 
@@ -628,9 +616,6 @@ ax.set(
 )
 
 ax.spines[["top", "right"]].set_visible(False)
-
-plt.tight_layout()
-plt.show()
 
 # %%
 # Close the LFP file

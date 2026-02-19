@@ -241,8 +241,7 @@ fig, axes = plt.subplots(2, 1, figsize=(12, 6), sharex=True, constrained_layout=
 # LFP
 ax = axes[0]
 ax.plot(lfp_time, lfp_sample, linewidth=0.5, color="black")
-ax.set_ylabel("LFP (µV)")
-ax.set_title(f"Channel {theta_ref_channel}")
+ax.set(ylabel="LFP (µV)", title=f"Channel {theta_ref_channel}")
 ax.spines[["top", "right"]].set_visible(False)
 
 # Speed (shifted to align with LFP time)
@@ -256,8 +255,7 @@ if speed_mask.any():
         linewidth=1,
         color="steelblue",
     )
-ax.set_xlabel("Time (s)")
-ax.set_ylabel(f"Speed ({speed_interface.unit})")
+ax.set(xlabel="Time (s)", ylabel=f"Speed ({speed_interface.unit})")
 ax.spines[["top", "right"]].set_visible(False)
 
 # %% [markdown]

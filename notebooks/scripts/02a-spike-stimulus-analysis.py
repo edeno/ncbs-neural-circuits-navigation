@@ -188,13 +188,12 @@ print(f"  Firing rate: {len(spike_times) / (spike_times[-1] - spike_times[0]):.2
 # Only spikes between these lines can be used for place field analysis.
 
 # %%
-fig, ax = plt.subplots(figsize=(10, 4))
+fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
 ax.eventplot(spike_times, lineoffsets=1, colors="black")
 ax.axvline(position_timestamps.min(), color="green", linestyle="--", label="Start")
 ax.axvline(position_timestamps.max(), color="red", linestyle="--", label="End")
-ax.set_xlabel("Time (s)")
+ax.set(xlabel="Time (s)", title=f"Spike Raster for Unit {unit_idx}")
 ax.legend()
-ax.set_title(f"Spike Raster for Unit {unit_idx}")
 
 # %% [markdown]
 # ## Inter-Spike Interval (ISI) Distribution
@@ -364,7 +363,8 @@ RIGHT_COLOR = "#D55E00"  # vermillion (orange-red)
 # %%
 # Plot raster and PSTH comparing left vs right trials
 fig, axes = plt.subplots(
-    2, 1, figsize=(10, 6), sharex=True, gridspec_kw={"height_ratios": [2, 1]}
+    2, 1, figsize=(10, 6), sharex=True, gridspec_kw={"height_ratios": [2, 1]},
+    constrained_layout=True,
 )
 
 # Top panel: Raster plot sorted by trial type
@@ -437,8 +437,6 @@ ax_psth.set(
 ax_psth.legend(loc="upper right")
 ax_psth.spines[["top", "right"]].set_visible(False)
 
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # The raster plot (top) shows individual spikes on each trial, sorted by trial type.
@@ -472,7 +470,7 @@ plt.show()
 # Small bins = high variance (noisy), large bins = high bias (over-smoothed)
 bin_sizes = [0.01, 0.05, 0.1, 0.2]  # seconds: 10, 50, 100, 200 ms
 
-fig, axes = plt.subplots(len(bin_sizes), 1, figsize=(10, 8), sharex=True)
+fig, axes = plt.subplots(len(bin_sizes), 1, figsize=(10, 8), sharex=True, constrained_layout=True)
 
 # zip() pairs each axis with a bin size for iteration
 for ax, bin_size in zip(axes, bin_sizes):
@@ -490,9 +488,6 @@ for ax, bin_size in zip(axes, bin_sizes):
 
 axes[-1].set_xlabel("Time from trial start (s)")
 fig.suptitle(f"Unit {unit_idx}: Effect of Bin Size on PSTH (Left Trials)", y=1.02)
-
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # Notice how smaller bins reveal finer temporal structure but are noisier, while
@@ -521,7 +516,7 @@ eval_points = np.linspace(psth_window[0], psth_window[1], 1000)
 # Compare different bandwidths (analogous to bin size for histograms)
 bandwidths_ms = [10, 25, 50, 100]  # in milliseconds
 
-fig, axes = plt.subplots(len(bandwidths_ms), 1, figsize=(10, 8), sharex=True)
+fig, axes = plt.subplots(len(bandwidths_ms), 1, figsize=(10, 8), sharex=True, constrained_layout=True)
 
 for ax, bw_ms in zip(axes, bandwidths_ms):
     # Convert bandwidth from milliseconds to seconds
@@ -550,9 +545,6 @@ for ax, bw_ms in zip(axes, bandwidths_ms):
 
 axes[-1].set_xlabel("Time from trial start (s)")
 fig.suptitle(f"Unit {unit_idx}: Kernel Density Estimation (Left Trials)", y=1.02)
-
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # Unlike binning, KDE places a Gaussian kernel centered at each spike time and sums
@@ -620,8 +612,7 @@ ax.scatter(
     label="Spikes",
     zorder=5,  # draw on top of trajectory
 )
-ax.set(xlabel="X Position (cm)", ylabel="Y Position (cm)")
-ax.set_title(f"Spatial Firing Map for Unit {unit_idx}")
+ax.set(xlabel="X Position (cm)", ylabel="Y Position (cm)", title=f"Spatial Firing Map for Unit {unit_idx}")
 ax.legend()
 ax.set_aspect("equal", adjustable="box")  # ensure 1:1 aspect ratio
 
@@ -660,8 +651,7 @@ y_bins = np.arange(min_y, max_y + pos_bin_size, pos_bin_size)
 fig, ax = plt.subplots(figsize=(6, 6))
 # hist2d returns: counts, x_edges, y_edges, and the image object
 hist_handle = ax.hist2d(x_position_at_spike, y_position_at_spike, bins=[x_bins, y_bins])
-ax.set(xlabel="X Position (cm)", ylabel="Y Position (cm)")
-ax.set_title(f"Spike Count Map for Unit {unit_idx}")
+ax.set(xlabel="X Position (cm)", ylabel="Y Position (cm)", title=f"Spike Count Map for Unit {unit_idx}")
 ax.set_aspect("equal", adjustable="box")
 ax.plot(x_position, y_position, color="lightgray", alpha=0.1)
 plt.colorbar(hist_handle[3], ax=ax, label="Spike Count")
@@ -687,8 +677,7 @@ plt.colorbar(hist_handle[3], ax=ax, label="Spike Count")
 # Plot the occupancy map (how much time spent at each location)
 fig, ax = plt.subplots(figsize=(6, 6))
 hist_handle = ax.hist2d(x_position, y_position, bins=[x_bins, y_bins])
-ax.set(xlabel="X Position (cm)", ylabel="Y Position (cm)")
-ax.set_title("Occupancy Map (Position Samples)")
+ax.set(xlabel="X Position (cm)", ylabel="Y Position (cm)", title="Occupancy Map (Position Samples)")
 ax.set_aspect("equal", adjustable="box")
 ax.plot(x_position, y_position, color="lightgray", alpha=0.1)
 plt.colorbar(hist_handle[3], ax=ax, label="Number of Samples")
@@ -756,8 +745,7 @@ im = ax.imshow(
     aspect="equal",
     cmap="hot",  # hot colormap: black -> red -> yellow -> white
 )
-ax.set(xlabel="X Position (cm)", ylabel="Y Position (cm)")
-ax.set_title(f"Firing Rate Map for Unit {unit_idx}")
+ax.set(xlabel="X Position (cm)", ylabel="Y Position (cm)", title=f"Firing Rate Map for Unit {unit_idx}")
 ax.plot(x_position, y_position, color="lightgray", alpha=0.1)
 plt.colorbar(im, ax=ax, label="Firing Rate (Hz)")
 
@@ -840,8 +828,7 @@ sig = 2 / np.sqrt(n_bins)
 ax.plot([0, lags[-1]], [sig, sig], "r:", label="95% bounds")
 ax.plot([0, lags[-1]], [-sig, -sig], "r:")
 
-ax.set(xlabel="Lag (s)", ylabel="Autocorrelation", xlim=(0, lags[-1]))
-ax.set_title(f"Unit {unit_idx} Spike Train Autocorrelation")
+ax.set(xlabel="Lag (s)", ylabel="Autocorrelation", xlim=(0, lags[-1]), title=f"Unit {unit_idx} Spike Train Autocorrelation")
 
 # Highlight physiologically meaningful time windows
 ax.axvspan(0.0, 0.002, color="#999999", alpha=0.3, label="Refractory period")  # gray
@@ -896,8 +883,8 @@ ax.set(
     xlim=(0, 0.15),
     xlabel="ISI (s)",
     ylabel="Probability",
+    title=f"Unit {unit_idx}: ISI Distribution vs. Poisson Model",
 )
-ax.set_title(f"Unit {unit_idx}: ISI Distribution vs. Poisson Model")
 ax.legend()
 ax.spines[["top", "right"]].set_visible(False)
 

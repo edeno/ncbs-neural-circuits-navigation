@@ -443,7 +443,7 @@ place_fields_smooth = place_fields_place_cells
 # %%
 # Plot example place fields
 n_examples = min(12, len(spike_times_all))
-fig, axes = plt.subplots(3, 4, figsize=(12, 9))
+fig, axes = plt.subplots(3, 4, figsize=(12, 9), constrained_layout=True)
 
 for i, ax in enumerate(axes.flat[:n_examples]):
     im = ax.imshow(
@@ -462,8 +462,6 @@ for ax in axes.flat[n_examples:]:
     ax.axis("off")
 
 fig.suptitle("Example Place Fields (Putative Pyramidal Cells)", fontsize=14)
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # ## Part 2: The Bayesian Decoding Algorithm
@@ -809,7 +807,7 @@ print(f"  Bins with 0 spikes: {(total_spikes_per_bin == 0).sum()} "
 
 # %%
 # Visualize posterior for a bin with no spikes vs bin with many spikes
-fig, axes = plt.subplots(1, 3, figsize=(14, 4))
+fig, axes = plt.subplots(1, 3, figsize=(14, 4), constrained_layout=True)
 
 # Find examples
 no_spike_bins = np.where(total_spikes_per_bin == 0)[0]
@@ -861,14 +859,9 @@ with np.errstate(divide="ignore", invalid="ignore"):
 
 ax.scatter(total_spikes_per_bin, entropy, alpha=0.3, s=5)
 ax.axvline(0, color="red", linestyle="--", alpha=0.5, label="No spikes")
-ax.set_xlabel("Total spikes in bin")
-ax.set_ylabel("Posterior entropy (bits)")
-ax.set_title("More spikes → Lower uncertainty")
+ax.set(xlabel="Total spikes in bin", ylabel="Posterior entropy (bits)", title="More spikes → Lower uncertainty")
 ax.legend()
 ax.spines[["top", "right"]].set_visible(False)
-
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # ### The No-Spike Posterior and Place Field Coverage
@@ -893,7 +886,7 @@ plt.show()
 # Visualize total firing rate across space (sum of all place fields)
 total_rate_map = np.sum(place_fields_smooth, axis=0)
 
-fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+fig, axes = plt.subplots(1, 2, figsize=(12, 5), constrained_layout=True)
 
 ax = axes[0]
 im = ax.imshow(
@@ -903,9 +896,7 @@ im = ax.imshow(
     cmap="viridis",
     aspect="equal",
 )
-ax.set_xlabel("X position (cm)")
-ax.set_ylabel("Y position (cm)")
-ax.set_title("Total firing rate (sum of place fields)")
+ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="Total firing rate (sum of place fields)")
 plt.colorbar(im, ax=ax, label="Rate (Hz)")
 
 # Predicted posterior for no-spike bin (negative of total rate)
@@ -919,13 +910,8 @@ im = ax.imshow(
     cmap="hot",
     aspect="equal",
 )
-ax.set_xlabel("X position (cm)")
-ax.set_ylabel("Y position (cm)")
-ax.set_title("Expected posterior when no spikes observed")
+ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="Expected posterior when no spikes observed")
 plt.colorbar(im, ax=ax, label="Probability")
-
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # ## Part 5: Numerical Stability in Detail
@@ -1006,7 +992,7 @@ print(f"  90th percentile: {np.percentile(error_valid, 90):.1f} cm")
 
 # %%
 # Visualize decoded vs true trajectory
-fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+fig, axes = plt.subplots(1, 2, figsize=(14, 6), constrained_layout=True)
 
 # Time window for visualization
 t_start, t_end = 100, 400  # Indices
@@ -1015,9 +1001,7 @@ time_window = slice(t_start, t_end)
 ax = axes[0]
 ax.plot(true_x[time_window], true_y[time_window], "b-", alpha=0.7, linewidth=1, label="True")
 ax.plot(decoded_x[time_window], decoded_y[time_window], "r.", alpha=0.5, markersize=3, label="Decoded")
-ax.set_xlabel("X position (cm)")
-ax.set_ylabel("Y position (cm)")
-ax.set_title("Trajectory: True vs Decoded")
+ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="Trajectory: True vs Decoded")
 ax.legend()
 ax.set_aspect("equal")
 
@@ -1026,18 +1010,13 @@ ax = axes[1]
 time_slice = time_bin_centers[time_window]
 ax.plot(time_slice - time_slice[0], error[time_window], "k-", alpha=0.7)
 ax.axhline(np.median(error_valid), color="red", linestyle="--", label=f"Median: {np.median(error_valid):.1f} cm")
-ax.set_xlabel("Time (s)")
-ax.set_ylabel("Decoding error (cm)")
-ax.set_title("Error Over Time")
+ax.set(xlabel="Time (s)", ylabel="Decoding error (cm)", title="Error Over Time")
 ax.legend()
 ax.spines[["top", "right"]].set_visible(False)
 
-plt.tight_layout()
-plt.show()
-
 # %%
 # Error as a function of spike count
-fig, ax = plt.subplots(figsize=(8, 5))
+fig, ax = plt.subplots(figsize=(8, 5), constrained_layout=True)
 
 # Bin by spike count
 spike_count_bins = np.arange(0, 20)
@@ -1062,13 +1041,8 @@ ax.errorbar(
     capsize=3,
     color="steelblue",
 )
-ax.set_xlabel("Total spikes in time bin")
-ax.set_ylabel("Mean decoding error (cm)")
-ax.set_title("More spikes → Better decoding")
+ax.set(xlabel="Total spikes in time bin", ylabel="Mean decoding error (cm)", title="More spikes → Better decoding")
 ax.spines[["top", "right"]].set_visible(False)
-
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # ## Part 7: Effect of Time Bin Size
@@ -1146,7 +1120,7 @@ for bin_size in bin_sizes:
 
 # %%
 # Visualize bin size effect
-fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+fig, axes = plt.subplots(1, 2, figsize=(12, 5), constrained_layout=True)
 
 bin_sizes_ms = [r["bin_size_ms"] for r in results_by_binsize]
 mean_errors = [r["mean_error"] for r in results_by_binsize]
@@ -1154,22 +1128,15 @@ spikes_per_bin = [r["mean_spikes_per_bin"] for r in results_by_binsize]
 
 ax = axes[0]
 ax.plot(bin_sizes_ms, mean_errors, "o-", color="steelblue", markersize=8)
-ax.set_xlabel("Time bin size (ms)")
-ax.set_ylabel("Mean decoding error (cm)")
-ax.set_title("Bin size vs Accuracy")
+ax.set(xlabel="Time bin size (ms)", ylabel="Mean decoding error (cm)", title="Bin size vs Accuracy")
 ax.spines[["top", "right"]].set_visible(False)
 
 ax = axes[1]
 ax.plot(spikes_per_bin, mean_errors, "o-", color="steelblue", markersize=8)
 for i, (x, y, ms) in enumerate(zip(spikes_per_bin, mean_errors, bin_sizes_ms)):
     ax.annotate(f"{ms:.0f}ms", (x, y), textcoords="offset points", xytext=(5, 5))
-ax.set_xlabel("Mean spikes per bin")
-ax.set_ylabel("Mean decoding error (cm)")
-ax.set_title("More spikes per bin → Better accuracy (up to a point)")
+ax.set(xlabel="Mean spikes per bin", ylabel="Mean decoding error (cm)", title="More spikes per bin → Better accuracy (up to a point)")
 ax.spines[["top", "right"]].set_visible(False)
-
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # ## Part 8: Maximum Likelihood vs Bayesian Decoding
@@ -1210,7 +1177,7 @@ print(f"  Occupancy prior - Mean error: {np.mean(error_with_prior_valid):.1f} cm
 
 # %%
 # Visualize the difference
-fig, axes = plt.subplots(1, 3, figsize=(14, 4))
+fig, axes = plt.subplots(1, 3, figsize=(14, 4), constrained_layout=True)
 
 # Show the prior
 ax = axes[0]
@@ -1221,9 +1188,7 @@ im = ax.imshow(
     cmap="Blues",
     aspect="equal",
 )
-ax.set_xlabel("X position (cm)")
-ax.set_ylabel("Y position (cm)")
-ax.set_title("Occupancy prior")
+ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="Occupancy prior")
 plt.colorbar(im, ax=ax, label="P(position)")
 
 # Example posterior with uniform prior
@@ -1252,9 +1217,6 @@ im = ax.imshow(
 ax.plot(true_x[t_example], true_y[t_example], "c*", markersize=15)
 ax.set_title("Posterior (occupancy prior)")
 plt.colorbar(im, ax=ax, label="P(position)")
-
-plt.tight_layout()
-plt.show()
 
 # %% [markdown]
 # ## Summary
