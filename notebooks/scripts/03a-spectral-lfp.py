@@ -484,8 +484,8 @@ power_db = 10 * np.log10(power_lfp_pos)
 fig, ax = plt.subplots(figsize=(10, 4))
 ax.plot(freqs_lfp_pos, power_db, color="black", linewidth=0.5)
 
-# Annotate the theta band (4-8 Hz)
-ax.axvspan(4, 8, alpha=0.2, color="orange", label="Theta (4–8 Hz)")
+# Annotate the theta band (4-12 Hz)
+ax.axvspan(4, 12, alpha=0.2, color="orange", label="Theta (4–12 Hz)")
 
 ax.set(
     xlabel="Frequency (Hz)",
@@ -500,7 +500,7 @@ plt.tight_layout()
 # %% [markdown]
 # In the dB-scale plot, we can now see:
 #
-# - A **theta peak** around 6–8 Hz — the dominant hippocampal rhythm during navigation
+# - A **theta peak** around 6–10 Hz — the dominant hippocampal rhythm during navigation
 # - A general **1/f trend** — power decreases with frequency, typical of neural signals
 # - Possible peaks at higher harmonics of theta
 #
@@ -624,7 +624,7 @@ ax.plot(
     alpha=0.7,
     label="Hann taper",
 )
-ax.axvspan(4, 8, alpha=0.15, color="orange", label="Theta (4–8 Hz)")
+ax.axvspan(4, 12, alpha=0.15, color="orange", label="Theta (4–12 Hz)")
 ax.set(
     xlabel="Frequency (Hz)",
     ylabel="Power (dB)",
@@ -746,7 +746,7 @@ ax.plot(
     label="Multitaper (NW=4, K=7)",
 )
 
-ax.axvspan(4, 8, alpha=0.15, color="orange", label="Theta (4–8 Hz)")
+ax.axvspan(4, 12, alpha=0.15, color="orange", label="Theta (4–12 Hz)")
 ax.set(
     xlabel="Frequency (Hz)",
     ylabel="Power (dB)",
@@ -794,7 +794,7 @@ for nw, color in [(2, "#0072B2"), (4, "#D55E00")]:
         label=f"NW={nw} (K={k} tapers)",
     )
 
-ax.axvspan(4, 8, alpha=0.15, color="orange", label="Theta (4–8 Hz)")
+ax.axvspan(4, 12, alpha=0.15, color="orange", label="Theta (4–12 Hz)")
 ax.set(
     xlabel="Frequency (Hz)",
     ylabel="Power (dB)",
@@ -851,6 +851,7 @@ spec_time = mt_spectrogram.time
 print(f"Spectrogram shape: {spec_power.shape}")
 print(f"Time windows: {len(spec_time)}")
 print(f"Frequency bins: {len(spec_freqs)}")
+print(f"Frequency bin spacing: {1 / mt_spectrogram.time_window_duration:.1f} Hz")
 print(f"Frequency resolution (bandwidth 2W): {mt_spectrogram.frequency_resolution:.1f} Hz")
 
 # %%
@@ -873,7 +874,6 @@ mesh = ax.pcolormesh(
 )
 ax.set(ylabel="Frequency (Hz)", title="LFP Spectrogram (Multitaper, 500 ms windows)")
 ax.spines[["top", "right"]].set_visible(False)
-plt.colorbar(mesh, ax=ax, label="Power (dB)")
 
 # Speed overlay (aligned to the same epoch as LFP)
 ax = axes[1]
@@ -889,13 +889,15 @@ if speed_mask_full.any():
 ax.set(xlabel="Time (s)", ylabel=f"Speed ({speed_interface.unit})")
 ax.spines[["top", "right"]].set_visible(False)
 
+# Attach colorbar to both axes so they stay aligned
+plt.colorbar(mesh, ax=axes.tolist(), label="Power (dB)", pad=0.02)
 plt.tight_layout()
 
 # %% [markdown]
 # The spectrogram reveals how spectral content changes over time. Compare the
 # spectrogram with the speed trace below it:
 #
-# - **During running** (high speed): Theta power (~6–8 Hz) should be prominent
+# - **During running** (high speed): Theta power (~6–10 Hz) should be prominent
 # - **During immobility** (low speed): Theta power decreases; brief high-frequency
 #   events (sharp-wave ripples) may appear
 
@@ -908,7 +910,7 @@ plt.tight_layout()
 # %%
 # Compare short vs long windows
 window_durations = [0.2, 1.0]  # seconds
-window_labels = ["200 ms (bin spacing=5 Hz)", "1000 ms (bin spacing=1 Hz)"]
+window_labels = ["200 ms (resolution=40 Hz)", "1000 ms (resolution=8 Hz)"]
 
 fig, axes = plt.subplots(len(window_durations), 1, figsize=(12, 6), sharex=True)
 
@@ -944,9 +946,9 @@ plt.tight_layout()
 
 # %% [markdown]
 # - **Short windows** (200 ms, top): Good temporal resolution — you can see when
-#   events start and stop. But frequency bin spacing is coarse (5 Hz), so the
+#   events start and stop. But frequency resolution is coarse (2W = 40 Hz), so the
 #   theta peak is broad and hard to pinpoint.
-# - **Long windows** (1000 ms, bottom): Frequency bin spacing is fine (1 Hz) —
+# - **Long windows** (1000 ms, bottom): Frequency resolution is finer (2W = 8 Hz) —
 #   theta peak is sharp. But temporal resolution is coarse, smoothing over rapid
 #   changes.
 #
@@ -976,9 +978,9 @@ plt.tight_layout()
 #    their power spectra. Where do you see theta? Where do you see ripples?
 #
 # 5. **Theta power over time**: From the spectrogram, extract the average power in
-#    the theta band (4–8 Hz) at each time point. Plot this alongside speed. Is
+#    the theta band (4–12 Hz) at each time point. Plot this alongside speed. Is
 #    theta power correlated with running speed?
-#    (Hint: use `spec_power[:, (spec_freqs >= 4) & (spec_freqs <= 8)].mean(axis=1)`)
+#    (Hint: use `spec_power[:, (spec_freqs >= 4) & (spec_freqs <= 12)].mean(axis=1)`)
 #
 # 6. **Ripple detection**: Look at the spectrogram during periods of immobility.
 #    Can you identify transient high-frequency events (100–250 Hz) that might
