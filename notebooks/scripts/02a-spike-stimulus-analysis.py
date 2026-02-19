@@ -188,7 +188,7 @@ print(f"  Firing rate: {len(spike_times) / (spike_times[-1] - spike_times[0]):.2
 # Only spikes between these lines can be used for place field analysis.
 
 # %%
-fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(10, 4), layout="constrained")
 ax.eventplot(spike_times, lineoffsets=1, colors="black")
 ax.axvline(position_timestamps.min(), color="green", linestyle="--", label="Start")
 ax.axvline(position_timestamps.max(), color="red", linestyle="--", label="End")
@@ -226,7 +226,7 @@ isi_bin_size = 0.005  # seconds (5 ms bins)
 isi_bins = np.arange(0, isi_max + isi_bin_size, isi_bin_size)
 
 # Plot the ISI distribution
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(layout="constrained")
 ax.hist(isi, bins=isi_bins, density=True)
 ax.set(
     xlabel="Inter-spike interval (s)",
@@ -364,7 +364,7 @@ RIGHT_COLOR = "#D55E00"  # vermillion (orange-red)
 # Plot raster and PSTH comparing left vs right trials
 fig, axes = plt.subplots(
     2, 1, figsize=(10, 6), sharex=True, gridspec_kw={"height_ratios": [2, 1]},
-    constrained_layout=True,
+    layout="constrained",
 )
 
 # Top panel: Raster plot sorted by trial type
@@ -470,7 +470,7 @@ ax_psth.spines[["top", "right"]].set_visible(False)
 # Small bins = high variance (noisy), large bins = high bias (over-smoothed)
 bin_sizes = [0.01, 0.05, 0.1, 0.2]  # seconds: 10, 50, 100, 200 ms
 
-fig, axes = plt.subplots(len(bin_sizes), 1, figsize=(10, 8), sharex=True, constrained_layout=True)
+fig, axes = plt.subplots(len(bin_sizes), 1, figsize=(10, 8), sharex=True, layout="constrained")
 
 # zip() pairs each axis with a bin size for iteration
 for ax, bin_size in zip(axes, bin_sizes):
@@ -516,7 +516,7 @@ eval_points = np.linspace(psth_window[0], psth_window[1], 1000)
 # Compare different bandwidths (analogous to bin size for histograms)
 bandwidths_ms = [10, 25, 50, 100]  # in milliseconds
 
-fig, axes = plt.subplots(len(bandwidths_ms), 1, figsize=(10, 8), sharex=True, constrained_layout=True)
+fig, axes = plt.subplots(len(bandwidths_ms), 1, figsize=(10, 8), sharex=True, layout="constrained")
 
 for ax, bw_ms in zip(axes, bandwidths_ms):
     # Convert bandwidth from milliseconds to seconds
@@ -602,7 +602,7 @@ x_position_at_spike = x_position[position_ind_at_spike]
 y_position_at_spike = y_position[position_ind_at_spike]
 
 # Plot spikes overlaid on trajectory
-fig, ax = plt.subplots(figsize=(6, 6))
+fig, ax = plt.subplots(figsize=(6, 6), layout="constrained")
 ax.plot(x_position, y_position, color="lightgray", label="Trajectory")
 ax.scatter(
     x_position_at_spike,
@@ -648,13 +648,13 @@ x_bins = np.arange(min_x, max_x + pos_bin_size, pos_bin_size)
 y_bins = np.arange(min_y, max_y + pos_bin_size, pos_bin_size)
 
 # Plot 2D histogram of spike locations
-fig, ax = plt.subplots(figsize=(6, 6))
+fig, ax = plt.subplots(figsize=(6, 6), layout="constrained")
 # hist2d returns: counts, x_edges, y_edges, and the image object
 hist_handle = ax.hist2d(x_position_at_spike, y_position_at_spike, bins=[x_bins, y_bins])
 ax.set(xlabel="X Position (cm)", ylabel="Y Position (cm)", title=f"Spike Count Map for Unit {unit_idx}")
 ax.set_aspect("equal", adjustable="box")
 ax.plot(x_position, y_position, color="lightgray", alpha=0.1)
-plt.colorbar(hist_handle[3], ax=ax, label="Spike Count")
+fig.colorbar(hist_handle[3], ax=ax, label="Spike Count")
 
 # %% [markdown]
 # ## Occupancy Normalization
@@ -675,12 +675,12 @@ plt.colorbar(hist_handle[3], ax=ax, label="Spike Count")
 
 # %%
 # Plot the occupancy map (how much time spent at each location)
-fig, ax = plt.subplots(figsize=(6, 6))
+fig, ax = plt.subplots(figsize=(6, 6), layout="constrained")
 hist_handle = ax.hist2d(x_position, y_position, bins=[x_bins, y_bins])
 ax.set(xlabel="X Position (cm)", ylabel="Y Position (cm)", title="Occupancy Map (Position Samples)")
 ax.set_aspect("equal", adjustable="box")
 ax.plot(x_position, y_position, color="lightgray", alpha=0.1)
-plt.colorbar(hist_handle[3], ax=ax, label="Number of Samples")
+fig.colorbar(hist_handle[3], ax=ax, label="Number of Samples")
 
 # %% [markdown]
 # ## Computing the Place Field (Firing Rate Map)
@@ -735,7 +735,7 @@ with np.errstate(divide="ignore", invalid="ignore"):
     firing_rate_map[~np.isfinite(firing_rate_map)] = 0
 
 # Plot the firing rate map
-fig, ax = plt.subplots(figsize=(6, 6))
+fig, ax = plt.subplots(figsize=(6, 6), layout="constrained")
 # imshow displays 2D arrays as images
 # .T transposes because imshow expects (rows, cols) but histogram2d returns (x, y)
 im = ax.imshow(
@@ -747,7 +747,7 @@ im = ax.imshow(
 )
 ax.set(xlabel="X Position (cm)", ylabel="Y Position (cm)", title=f"Firing Rate Map for Unit {unit_idx}")
 ax.plot(x_position, y_position, color="lightgray", alpha=0.1)
-plt.colorbar(im, ax=ax, label="Firing Rate (Hz)")
+fig.colorbar(im, ax=ax, label="Firing Rate (Hz)")
 
 # %% [markdown]
 # ## Temporal Structure: Spike Train Autocorrelation
@@ -816,7 +816,7 @@ n_lags = 125  # number of lags (125 * 2 ms = 250 ms)
 spike_train_autocorr = autocorr(binned_spike_counts, n_lags)
 
 # Plot the autocorrelation
-fig, ax = plt.subplots(figsize=(10, 4))
+fig, ax = plt.subplots(figsize=(10, 4), layout="constrained")
 lags = np.arange(n_lags + 1) * autocorr_bin_size  # convert lag indices to seconds
 
 # Exclude lag 0 (always = 1) for better visualization of structure
@@ -876,7 +876,7 @@ bin_width = isi_bins[1] - isi_bins[0]
 model = lbda * np.exp(-lbda * isi_bins) * bin_width
 
 # Plot the comparison
-fig, ax = plt.subplots(figsize=(10, 4))
+fig, ax = plt.subplots(figsize=(10, 4), layout="constrained")
 ax.bar(isi_bins[:-1], prob, width=bin_width, alpha=0.7, label="Observed ISI")
 ax.plot(isi_bins, model, "r-", linewidth=2, label=f"Poisson model (λ={lbda:.1f} Hz)")
 ax.set(

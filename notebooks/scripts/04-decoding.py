@@ -443,7 +443,7 @@ place_fields_smooth = place_fields_place_cells
 # %%
 # Plot example place fields
 n_examples = min(12, len(spike_times_all))
-fig, axes = plt.subplots(3, 4, figsize=(12, 9), constrained_layout=True)
+fig, axes = plt.subplots(3, 4, figsize=(12, 9), layout="constrained")
 
 for i, ax in enumerate(axes.flat[:n_examples]):
     im = ax.imshow(
@@ -807,7 +807,7 @@ print(f"  Bins with 0 spikes: {(total_spikes_per_bin == 0).sum()} "
 
 # %%
 # Visualize posterior for a bin with no spikes vs bin with many spikes
-fig, axes = plt.subplots(1, 3, figsize=(14, 4), constrained_layout=True)
+fig, axes = plt.subplots(1, 3, figsize=(14, 4), layout="constrained")
 
 # Find examples
 no_spike_bins = np.where(total_spikes_per_bin == 0)[0]
@@ -833,7 +833,7 @@ ax.plot(true_x[t_no_spike], true_y[t_no_spike], "c*", markersize=15, label="True
 ax.plot(decoded_x[t_no_spike], decoded_y[t_no_spike], "go", markersize=10, label="Decoded")
 ax.set_title(f"No spikes (t={time_bin_centers[t_no_spike]:.2f}s)")
 ax.legend(loc="upper right")
-plt.colorbar(im, ax=ax, label="P(position)")
+fig.colorbar(im, ax=ax, label="P(position)")
 
 # Many spike bin
 ax = axes[1]
@@ -848,7 +848,7 @@ ax.plot(true_x[t_many_spike], true_y[t_many_spike], "c*", markersize=15, label="
 ax.plot(decoded_x[t_many_spike], decoded_y[t_many_spike], "go", markersize=10, label="Decoded")
 ax.set_title(f"{total_spikes_per_bin[t_many_spike]} spikes (t={time_bin_centers[t_many_spike]:.2f}s)")
 ax.legend(loc="upper right")
-plt.colorbar(im, ax=ax, label="P(position)")
+fig.colorbar(im, ax=ax, label="P(position)")
 
 # Show the difference in posterior "sharpness"
 ax = axes[2]
@@ -886,7 +886,7 @@ ax.spines[["top", "right"]].set_visible(False)
 # Visualize total firing rate across space (sum of all place fields)
 total_rate_map = np.sum(place_fields_smooth, axis=0)
 
-fig, axes = plt.subplots(1, 2, figsize=(12, 5), constrained_layout=True)
+fig, axes = plt.subplots(1, 2, figsize=(12, 5), layout="constrained")
 
 ax = axes[0]
 im = ax.imshow(
@@ -897,7 +897,7 @@ im = ax.imshow(
     aspect="equal",
 )
 ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="Total firing rate (sum of place fields)")
-plt.colorbar(im, ax=ax, label="Rate (Hz)")
+fig.colorbar(im, ax=ax, label="Rate (Hz)")
 
 # Predicted posterior for no-spike bin (negative of total rate)
 ax = axes[1]
@@ -911,7 +911,7 @@ im = ax.imshow(
     aspect="equal",
 )
 ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="Expected posterior when no spikes observed")
-plt.colorbar(im, ax=ax, label="Probability")
+fig.colorbar(im, ax=ax, label="Probability")
 
 # %% [markdown]
 # ## Part 5: Numerical Stability in Detail
@@ -992,7 +992,7 @@ print(f"  90th percentile: {np.percentile(error_valid, 90):.1f} cm")
 
 # %%
 # Visualize decoded vs true trajectory
-fig, axes = plt.subplots(1, 2, figsize=(14, 6), constrained_layout=True)
+fig, axes = plt.subplots(1, 2, figsize=(14, 6), layout="constrained")
 
 # Time window for visualization
 t_start, t_end = 100, 400  # Indices
@@ -1016,7 +1016,7 @@ ax.spines[["top", "right"]].set_visible(False)
 
 # %%
 # Error as a function of spike count
-fig, ax = plt.subplots(figsize=(8, 5), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(8, 5), layout="constrained")
 
 # Bin by spike count
 spike_count_bins = np.arange(0, 20)
@@ -1120,7 +1120,7 @@ for bin_size in bin_sizes:
 
 # %%
 # Visualize bin size effect
-fig, axes = plt.subplots(1, 2, figsize=(12, 5), constrained_layout=True)
+fig, axes = plt.subplots(1, 2, figsize=(12, 5), layout="constrained")
 
 bin_sizes_ms = [r["bin_size_ms"] for r in results_by_binsize]
 mean_errors = [r["mean_error"] for r in results_by_binsize]
@@ -1177,7 +1177,7 @@ print(f"  Occupancy prior - Mean error: {np.mean(error_with_prior_valid):.1f} cm
 
 # %%
 # Visualize the difference
-fig, axes = plt.subplots(1, 3, figsize=(14, 4), constrained_layout=True)
+fig, axes = plt.subplots(1, 3, figsize=(14, 4), layout="constrained")
 
 # Show the prior
 ax = axes[0]
@@ -1189,7 +1189,7 @@ im = ax.imshow(
     aspect="equal",
 )
 ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="Occupancy prior")
-plt.colorbar(im, ax=ax, label="P(position)")
+fig.colorbar(im, ax=ax, label="P(position)")
 
 # Example posterior with uniform prior
 t_example = many_spike_bins[0]
@@ -1203,7 +1203,7 @@ im = ax.imshow(
 )
 ax.plot(true_x[t_example], true_y[t_example], "c*", markersize=15)
 ax.set_title("Posterior (uniform prior)")
-plt.colorbar(im, ax=ax, label="P(position)")
+fig.colorbar(im, ax=ax, label="P(position)")
 
 # Same time bin with occupancy prior
 ax = axes[2]
@@ -1216,7 +1216,7 @@ im = ax.imshow(
 )
 ax.plot(true_x[t_example], true_y[t_example], "c*", markersize=15)
 ax.set_title("Posterior (occupancy prior)")
-plt.colorbar(im, ax=ax, label="P(position)")
+fig.colorbar(im, ax=ax, label="P(position)")
 
 # %% [markdown]
 # ## Summary

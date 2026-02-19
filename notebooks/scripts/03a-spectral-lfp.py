@@ -219,7 +219,7 @@ print(f"Sample shape: {lfp_sample.shape}")
 
 # %%
 # Plot LFP trace
-fig, ax = plt.subplots(figsize=(12, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(12, 4), layout="constrained")
 
 ax.plot(lfp_time, lfp_sample, linewidth=0.5, color="black")
 
@@ -236,7 +236,7 @@ ax.spines[["top", "right"]].set_visible(False)
 # Speed timestamps are offset from LFP timestamps
 speed_offset = speed_timestamps[0]  # Speed starts at this time in the session
 
-fig, axes = plt.subplots(2, 1, figsize=(12, 6), sharex=True, constrained_layout=True)
+fig, axes = plt.subplots(2, 1, figsize=(12, 6), sharex=True, layout="constrained")
 
 # LFP
 ax = axes[0]
@@ -311,7 +311,7 @@ t = np.arange(0, synth_duration, 1 / synth_rate)
 # Single 8 Hz cosine (theta-like)
 signal_8hz = np.cos(2 * np.pi * 8 * t)
 
-fig, ax = plt.subplots(figsize=(10, 3), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(10, 3), layout="constrained")
 ax.plot(t, signal_8hz, color="black")
 ax.set(xlabel="Time (s)", ylabel="Amplitude", title="8 Hz Cosine (Theta-like)")
 ax.spines[["top", "right"]].set_visible(False)
@@ -331,7 +331,7 @@ ax.spines[["top", "right"]].set_visible(False)
 # Sum of a 5 Hz (large amplitude) and 40 Hz (small amplitude) sinusoid
 signal_mixed = 1.0 * np.cos(2 * np.pi * 5 * t) + 0.1 * np.cos(2 * np.pi * 40 * t)
 
-fig, ax = plt.subplots(figsize=(10, 3), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(10, 3), layout="constrained")
 ax.plot(t, signal_mixed, color="black")
 ax.set(xlabel="Time (s)", ylabel="Amplitude", title="5 Hz + 40 Hz Signal")
 ax.spines[["top", "right"]].set_visible(False)
@@ -373,7 +373,7 @@ freqs_pos = freqs[pos_mask]
 power_pos = power[pos_mask]
 
 # Plot the power spectrum
-fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(10, 4), layout="constrained")
 ax.plot(freqs_pos, power_pos, color="black")
 ax.set(
     xlabel="Frequency (Hz)",
@@ -453,7 +453,7 @@ power_lfp_pos = power_lfp[pos_mask_lfp]
 
 # %%
 # Plot in linear scale — hard to see structure beyond the dominant peak
-fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(10, 4), layout="constrained")
 ax.plot(freqs_lfp_pos, power_lfp_pos, color="black", linewidth=0.5)
 ax.set(
     xlabel="Frequency (Hz)",
@@ -472,7 +472,7 @@ ax.spines[["top", "right"]].set_visible(False)
 # Plot in decibel scale — reveals structure across frequencies
 power_db = 10 * np.log10(power_lfp_pos)
 
-fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(10, 4), layout="constrained")
 ax.plot(freqs_lfp_pos, power_db, color="black", linewidth=0.5)
 
 # Annotate the theta band (4-12 Hz)
@@ -548,7 +548,7 @@ power_hann_pos = power_hann[synth_pos]
 
 # %%
 # Compare rectangular vs Hann taper on the 20 Hz sinusoid
-fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(10, 4), layout="constrained")
 ax.plot(
     freqs_synth_pos,
     10 * np.log10(power_rect_pos),
@@ -596,7 +596,7 @@ power_lfp_hann = (2 * dt_lfp**2 / T_lfp) * np.abs(X_lfp_hann) ** 2 / hann_lfp_ne
 power_lfp_hann_pos = power_lfp_hann[pos_mask_lfp]
 
 # Compare untapered vs Hann-tapered LFP spectrum
-fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(10, 4), layout="constrained")
 ax.plot(
     freqs_lfp_pos,
     10 * np.log10(power_lfp_pos),
@@ -668,7 +668,7 @@ NW = 4  # time-halfbandwidth product
 K = 2 * NW - 1  # number of good tapers
 tapers = dpss(taper_N, NW, Kmax=K)
 
-fig, axes = plt.subplots(K, 1, figsize=(10, 8), sharex=True, constrained_layout=True)
+fig, axes = plt.subplots(K, 1, figsize=(10, 8), sharex=True, layout="constrained")
 taper_time = np.arange(taper_N) / 1000  # time in seconds
 
 for i, ax in enumerate(axes):
@@ -715,7 +715,7 @@ print(f"Nyquist frequency: {multitaper.nyquist_frequency:.1f} Hz")
 
 # %%
 # Compare multitaper vs single-taper (Hann) spectrum
-fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(10, 4), layout="constrained")
 
 ax.plot(
     freqs_lfp_pos,
@@ -760,7 +760,7 @@ ax.spines[["top", "right"]].set_visible(False)
 
 # %%
 # Compare different time-bandwidth products
-fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(10, 4), layout="constrained")
 
 for nw, color in [(2, "#0072B2"), (4, "#D55E00")]:
     mt = Multitaper(
@@ -845,7 +845,7 @@ freq_limit = 100  # Hz
 freq_mask = spec_freqs <= freq_limit
 
 fig, axes = plt.subplots(
-    2, 1, figsize=(12, 7), sharex=True, constrained_layout=True,
+    2, 1, figsize=(12, 7), sharex=True, layout="constrained",
     gridspec_kw={"height_ratios": [3, 1]},
 )
 
@@ -898,7 +898,7 @@ window_durations = [0.2, 1.0]  # seconds
 window_labels = ["200 ms (resolution=40 Hz)", "1000 ms (resolution=8 Hz)"]
 
 fig, axes = plt.subplots(
-    len(window_durations), 1, figsize=(12, 6), sharex=True, constrained_layout=True,
+    len(window_durations), 1, figsize=(12, 6), sharex=True, layout="constrained",
 )
 
 for ax, win_dur, label in zip(axes, window_durations, window_labels):

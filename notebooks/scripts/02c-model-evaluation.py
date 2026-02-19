@@ -510,7 +510,7 @@ print("\nNote: Small p-value → model does NOT fit well")
 # The dashed lines show approximate 95% confidence bounds from the KS test.
 
 # %%
-fig, axes = plt.subplots(1, len(models), figsize=(4 * len(models), 4), sharey=True, constrained_layout=True)
+fig, axes = plt.subplots(1, len(models), figsize=(4 * len(models), 4), sharey=True, layout="constrained")
 
 for ax, (name, _) in zip(axes, models):
     z = ks_results[name]
@@ -565,7 +565,7 @@ def autocorr(x, lags=50):
     return xcorr[: lags + 1]
 
 
-fig, axes = plt.subplots(1, len(models), figsize=(4 * len(models), 3), sharey=True, constrained_layout=True)
+fig, axes = plt.subplots(1, len(models), figsize=(4 * len(models), 3), sharey=True, layout="constrained")
 
 for ax, (name, _) in zip(axes, models):
     z = ks_results[name]
@@ -624,7 +624,7 @@ print(f"  Std residual: {residuals.std():.6f}")
 # the model is missing structure related to that covariate.
 
 # %%
-fig, axes = plt.subplots(1, 3, figsize=(14, 4), constrained_layout=True)
+fig, axes = plt.subplots(1, 3, figsize=(14, 4), layout="constrained")
 
 # Residuals vs x position
 ax = axes[0]
@@ -721,7 +721,7 @@ fig.suptitle(f"Unit {unit_idx}: Residual Analysis ({best_name})", y=1.02)
 n_lags = 100
 residual_ac = autocorr(residuals, lags=n_lags)
 
-fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(10, 4), layout="constrained")
 
 lags = np.arange(1, n_lags + 1) * BIN_SIZE * 1000  # Convert to ms
 ax.bar(lags, residual_ac[1:], width=BIN_SIZE * 1000, color="steelblue")
@@ -780,7 +780,7 @@ for i in range(len(speed_bin_centers_res)):
         mean_resid_by_speed.append(np.nan)
         se_resid_by_speed.append(np.nan)
 
-fig, ax = plt.subplots(figsize=(8, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(8, 4), layout="constrained")
 
 valid = ~np.isnan(mean_resid_by_speed)
 ax.errorbar(
@@ -812,7 +812,7 @@ residuals_pos_speed = df["spike_count"].values - results_2.fittedvalues.values
 left_resid_2 = residuals_pos_speed[df["direction"] == "leftward"]
 right_resid_2 = residuals_pos_speed[df["direction"] == "rightward"]
 
-fig, ax = plt.subplots(figsize=(6, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(6, 4), layout="constrained")
 
 means_2 = [left_resid_2.mean(), right_resid_2.mean()]
 ses_2 = [
@@ -900,7 +900,7 @@ from time_rescale import TimeRescaling
 is_spike = df["spike_count"].values.astype(bool)
 
 # Compare the constant model vs the best model
-fig, axes = plt.subplots(2, 2, figsize=(10, 8), constrained_layout=True)
+fig, axes = plt.subplots(2, 2, figsize=(10, 8), layout="constrained")
 
 for col, (name, res) in enumerate([("Constant", results_0), ("Position + Speed + Dir", results_3)]):
     rescaled = TimeRescaling(

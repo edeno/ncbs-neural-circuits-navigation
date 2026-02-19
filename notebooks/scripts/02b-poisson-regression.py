@@ -286,7 +286,7 @@ print(f"Observed mean = {df['spike_count'].mean():.4f} spikes/bin")
 
 # %%
 # Visualize spikes by direction with a raster plot
-fig, axes = plt.subplots(2, 1, figsize=(12, 6), sharex=True, constrained_layout=True)
+fig, axes = plt.subplots(2, 1, figsize=(12, 6), sharex=True, layout="constrained")
 
 # Get spike times for each direction
 leftward_bins = df[df["direction"] == "leftward"]["time"].values
@@ -382,7 +382,7 @@ print(pred_summary[["rate_hz", "rate_ci_lower", "rate_ci_upper"]])
 
 # %%
 # Visualize model predictions vs observed data
-fig, ax = plt.subplots(figsize=(8, 5), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(8, 5), layout="constrained")
 
 x_pos = [0, 1]
 colors = ["#0072B2", "#D55E00"]
@@ -492,7 +492,7 @@ spike_rate_se = np.array(spike_rate_se)
 
 # %%
 # Plot firing rate vs speed (histogram method)
-fig, axes = plt.subplots(2, 1, figsize=(10, 6), sharex=True, constrained_layout=True)
+fig, axes = plt.subplots(2, 1, figsize=(10, 6), sharex=True, layout="constrained")
 
 # Occupancy
 ax = axes[0]
@@ -548,7 +548,7 @@ predictions_speed = results_speed.get_prediction(pred_df_speed)
 pred_mean = predictions_speed.predicted_mean / BIN_SIZE
 pred_ci = predictions_speed.conf_int() / BIN_SIZE
 
-fig, ax = plt.subplots(figsize=(10, 5), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(10, 5), layout="constrained")
 
 # Observed data points
 ax.errorbar(
@@ -621,7 +621,7 @@ with np.errstate(divide="ignore", invalid="ignore"):
 
 # %%
 # Plot the place field
-fig, axes = plt.subplots(1, 3, figsize=(14, 4), constrained_layout=True)
+fig, axes = plt.subplots(1, 3, figsize=(14, 4), layout="constrained")
 
 # Occupancy
 ax = axes[0]
@@ -633,7 +633,7 @@ im = ax.imshow(
     cmap="gray_r",
 )
 ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="Occupancy (time bins)")
-plt.colorbar(im, ax=ax)
+fig.colorbar(im, ax=ax)
 
 # Spike counts
 ax = axes[1]
@@ -645,7 +645,7 @@ im = ax.imshow(
     cmap="hot",
 )
 ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="Spike counts")
-plt.colorbar(im, ax=ax)
+fig.colorbar(im, ax=ax)
 
 # Firing rate
 ax = axes[2]
@@ -657,7 +657,7 @@ im = ax.imshow(
     cmap="hot",
 )
 ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title=f"Unit {unit_idx}: Firing rate (Hz)")
-plt.colorbar(im, ax=ax)
+fig.colorbar(im, ax=ax)
 
 # %% [markdown]
 # ### Create position bin indicators
@@ -711,7 +711,7 @@ for x_idx in range(N_BINS_GLM):
 
 # %%
 # Compare histogram and GLM rate maps
-fig, axes = plt.subplots(1, 2, figsize=(10, 4), constrained_layout=True)
+fig, axes = plt.subplots(1, 2, figsize=(10, 4), layout="constrained")
 
 # Use same bins for fair comparison
 x_edges_glm = x_bin_edges
@@ -741,7 +741,7 @@ im = ax.imshow(
     vmax=vmax,
 )
 ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="Histogram estimate")
-plt.colorbar(im, ax=ax, label="Rate (Hz)")
+fig.colorbar(im, ax=ax, label="Rate (Hz)")
 
 ax = axes[1]
 im = ax.imshow(
@@ -754,7 +754,7 @@ im = ax.imshow(
     vmax=vmax,
 )
 ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="GLM indicator estimate")
-plt.colorbar(im, ax=ax, label="Rate (Hz)")
+fig.colorbar(im, ax=ax, label="Rate (Hz)")
 
 fig.suptitle(f"Unit {unit_idx}: Position Model Comparison", fontsize=12)
 
@@ -816,7 +816,7 @@ for i in range(len(x_hist_centers)):
         rate_by_x.append(np.nan)
         rate_se_x.append(np.nan)
 
-fig, ax = plt.subplots(figsize=(10, 5), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(10, 5), layout="constrained")
 
 # Histogram estimate
 valid = ~np.isnan(rate_by_x)
@@ -871,7 +871,7 @@ rate_ci_upper = predictions_2d.conf_int()[:, 1].reshape(n_grid, n_grid) / BIN_SI
 
 # %%
 # Plot 2D spline place field with uncertainty
-fig, axes = plt.subplots(1, 3, figsize=(14, 4), constrained_layout=True)
+fig, axes = plt.subplots(1, 3, figsize=(14, 4), layout="constrained")
 
 # Mean prediction
 ax = axes[0]
@@ -883,7 +883,7 @@ im = ax.imshow(
     cmap="hot",
 )
 ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="Spline estimate (mean)")
-plt.colorbar(im, ax=ax, label="Rate (Hz)")
+fig.colorbar(im, ax=ax, label="Rate (Hz)")
 
 # CI width (uncertainty)
 ci_width = rate_ci_upper - rate_ci_lower
@@ -896,7 +896,7 @@ im = ax.imshow(
     cmap="viridis",
 )
 ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="95% CI width")
-plt.colorbar(im, ax=ax, label="Hz")
+fig.colorbar(im, ax=ax, label="Hz")
 
 # Compare to histogram
 ax = axes[2]
@@ -908,7 +908,7 @@ im = ax.imshow(
     cmap="hot",
 )
 ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="Histogram estimate")
-plt.colorbar(im, ax=ax, label="Rate (Hz)")
+fig.colorbar(im, ax=ax, label="Rate (Hz)")
 
 fig.suptitle(f"Unit {unit_idx}: 2D Spline Place Field", fontsize=12)
 
@@ -951,7 +951,7 @@ print(f"  → {100 * (np.exp(dir_coef) - 1):.2f}% change for rightward vs leftwa
 
 # %%
 # Compare place fields for different conditions
-fig, axes = plt.subplots(2, 2, figsize=(10, 10), constrained_layout=True)
+fig, axes = plt.subplots(2, 2, figsize=(10, 10), layout="constrained")
 
 conditions = [
     ("Leftward, slow", "leftward", 5),
@@ -986,7 +986,7 @@ for ax, (title, _, _), rate_map_cond in zip(axes.flat, conditions, rate_maps):
         vmax=vmax,
     )
     ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title=title)
-    plt.colorbar(im, ax=ax, label="Rate (Hz)")
+    fig.colorbar(im, ax=ax, label="Rate (Hz)")
 
 fig.suptitle(f"Unit {unit_idx}: Full Model Predictions", fontsize=12)
 
@@ -1033,7 +1033,7 @@ print(f"\nBest model by AIC: {models[best_idx][0]}")
 fitted_rates = results_full.fittedvalues / BIN_SIZE
 
 # Compare observed vs predicted
-fig, axes = plt.subplots(1, 2, figsize=(12, 5), constrained_layout=True)
+fig, axes = plt.subplots(1, 2, figsize=(12, 5), layout="constrained")
 
 # Scatter plot of observed vs predicted (binned for clarity)
 ax = axes[0]

@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.18.1
+#       jupytext_version: 1.19.1
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -323,7 +323,7 @@ spike_times_list = [
 ]
 
 # Create raster plot
-fig, ax = plt.subplots(figsize=(12, 6), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(12, 6), layout="constrained")
 
 ax.eventplot(
     spike_times_list,
@@ -385,7 +385,7 @@ position_data = spatial_series.data[:]
 
 x_position, y_position = position_data[:, 0], position_data[:, 1]
 
-fig, ax = plt.subplots(figsize=(8, 8), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(8, 8), layout="constrained")
 
 ax.plot(x_position, y_position, linewidth=0.5, alpha=0.7, color="steelblue")
 
@@ -451,7 +451,7 @@ else:
 t_start = speed_timestamps[0]
 time_mask = speed_timestamps < (t_start + 60)
 
-fig, ax = plt.subplots(figsize=(12, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(12, 4), layout="constrained")
 
 ax.plot(
     speed_timestamps[time_mask] - t_start,
@@ -484,7 +484,7 @@ else:
 t_start = acceleration_timestamps[0]
 time_mask = acceleration_timestamps < (t_start + 60)
 
-fig, ax = plt.subplots(figsize=(12, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(12, 4), layout="constrained")
 
 ax.plot(
     acceleration_timestamps[time_mask] - t_start,
@@ -605,7 +605,7 @@ print(f"  Sampling rate: {lfp_rate} Hz")
 
 # %%
 # Plot LFP trace
-fig, ax = plt.subplots(figsize=(12, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(12, 4), layout="constrained")
 
 ax.plot(lfp_time, lfp_segment, linewidth=0.5, color="black")
 
