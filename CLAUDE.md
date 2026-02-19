@@ -59,6 +59,7 @@ Students can access materials three ways:
 - **matplotlib**: Visualization
 - **pandas**: Data manipulation
 - **statsmodels/patsy**: GLM fitting and formula interface
+- **spectral-connectivity**: Multitaper spectral estimation and connectivity
 - **jupyterlab**: Interactive notebooks
 - **jupyter-book**: Build course website
 
