@@ -219,7 +219,7 @@ print(f"Sample shape: {lfp_sample.shape}")
 
 # %%
 # Plot LFP trace
-fig, ax = plt.subplots(figsize=(12, 4))
+fig, ax = plt.subplots(figsize=(12, 4), constrained_layout=True)
 
 ax.plot(lfp_time, lfp_sample, linewidth=0.5, color="black")
 
@@ -230,14 +230,13 @@ ax.set(
 )
 
 ax.spines[["top", "right"]].set_visible(False)
-plt.tight_layout()
 
 # %%
 # Plot speed for the same time period (need to align timestamps)
 # Speed timestamps are offset from LFP timestamps
 speed_offset = speed_timestamps[0]  # Speed starts at this time in the session
 
-fig, axes = plt.subplots(2, 1, figsize=(12, 6), sharex=True)
+fig, axes = plt.subplots(2, 1, figsize=(12, 6), sharex=True, constrained_layout=True)
 
 # LFP
 ax = axes[0]
@@ -260,8 +259,6 @@ if speed_mask.any():
 ax.set_xlabel("Time (s)")
 ax.set_ylabel(f"Speed ({speed_interface.unit})")
 ax.spines[["top", "right"]].set_visible(False)
-
-plt.tight_layout()
 
 # %% [markdown]
 # ## Data Summary
@@ -316,11 +313,10 @@ t = np.arange(0, synth_duration, 1 / synth_rate)
 # Single 8 Hz cosine (theta-like)
 signal_8hz = np.cos(2 * np.pi * 8 * t)
 
-fig, ax = plt.subplots(figsize=(10, 3))
+fig, ax = plt.subplots(figsize=(10, 3), constrained_layout=True)
 ax.plot(t, signal_8hz, color="black")
 ax.set(xlabel="Time (s)", ylabel="Amplitude", title="8 Hz Cosine (Theta-like)")
 ax.spines[["top", "right"]].set_visible(False)
-plt.tight_layout()
 
 # %% [markdown]
 # ### Sum of Two Sinusoids
@@ -337,11 +333,10 @@ plt.tight_layout()
 # Sum of a 5 Hz (large amplitude) and 40 Hz (small amplitude) sinusoid
 signal_mixed = 1.0 * np.cos(2 * np.pi * 5 * t) + 0.1 * np.cos(2 * np.pi * 40 * t)
 
-fig, ax = plt.subplots(figsize=(10, 3))
+fig, ax = plt.subplots(figsize=(10, 3), constrained_layout=True)
 ax.plot(t, signal_mixed, color="black")
 ax.set(xlabel="Time (s)", ylabel="Amplitude", title="5 Hz + 40 Hz Signal")
 ax.spines[["top", "right"]].set_visible(False)
-plt.tight_layout()
 
 # %% [markdown]
 # ### Computing the Power Spectrum
@@ -380,7 +375,7 @@ freqs_pos = freqs[pos_mask]
 power_pos = power[pos_mask]
 
 # Plot the power spectrum
-fig, ax = plt.subplots(figsize=(10, 4))
+fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
 ax.plot(freqs_pos, power_pos, color="black")
 ax.set(
     xlabel="Frequency (Hz)",
@@ -389,7 +384,6 @@ ax.set(
     xlim=(0, 100),
 )
 ax.spines[["top", "right"]].set_visible(False)
-plt.tight_layout()
 
 # %% [markdown]
 # The spectrum reveals two sharp peaks at exactly **5 Hz** and **40 Hz** — the
@@ -461,7 +455,7 @@ power_lfp_pos = power_lfp[pos_mask_lfp]
 
 # %%
 # Plot in linear scale — hard to see structure beyond the dominant peak
-fig, ax = plt.subplots(figsize=(10, 4))
+fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
 ax.plot(freqs_lfp_pos, power_lfp_pos, color="black", linewidth=0.5)
 ax.set(
     xlabel="Frequency (Hz)",
@@ -470,7 +464,6 @@ ax.set(
     xlim=(0, 100),
 )
 ax.spines[["top", "right"]].set_visible(False)
-plt.tight_layout()
 
 # %% [markdown]
 # In linear scale, the low-frequency power dominates and it's hard to see
@@ -481,7 +474,7 @@ plt.tight_layout()
 # Plot in decibel scale — reveals structure across frequencies
 power_db = 10 * np.log10(power_lfp_pos)
 
-fig, ax = plt.subplots(figsize=(10, 4))
+fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
 ax.plot(freqs_lfp_pos, power_db, color="black", linewidth=0.5)
 
 # Annotate the theta band (4-12 Hz)
@@ -495,12 +488,11 @@ ax.set(
 )
 ax.legend()
 ax.spines[["top", "right"]].set_visible(False)
-plt.tight_layout()
 
 # %% [markdown]
 # In the dB-scale plot, we can now see:
 #
-# - A **theta peak** around 6–10 Hz — the dominant hippocampal rhythm during navigation
+# - A **theta peak** around 4–12 Hz — the dominant hippocampal rhythm during navigation
 # - A general **1/f trend** — power decreases with frequency, typical of neural signals
 # - Possible peaks at higher harmonics of theta
 #
@@ -558,7 +550,7 @@ power_hann_pos = power_hann[synth_pos]
 
 # %%
 # Compare rectangular vs Hann taper on the 20 Hz sinusoid
-fig, ax = plt.subplots(figsize=(10, 4))
+fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
 ax.plot(
     freqs_synth_pos,
     10 * np.log10(power_rect_pos),
@@ -581,7 +573,6 @@ ax.set(
 )
 ax.legend()
 ax.spines[["top", "right"]].set_visible(False)
-plt.tight_layout()
 
 # %% [markdown]
 # Key observations:
@@ -607,7 +598,7 @@ power_lfp_hann = (2 * dt_lfp**2 / T_lfp) * np.abs(X_lfp_hann) ** 2 / hann_lfp_ne
 power_lfp_hann_pos = power_lfp_hann[pos_mask_lfp]
 
 # Compare untapered vs Hann-tapered LFP spectrum
-fig, ax = plt.subplots(figsize=(10, 4))
+fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
 ax.plot(
     freqs_lfp_pos,
     10 * np.log10(power_lfp_pos),
@@ -633,7 +624,6 @@ ax.set(
 )
 ax.legend()
 ax.spines[["top", "right"]].set_visible(False)
-plt.tight_layout()
 
 # %% [markdown]
 # The Hann-tapered spectrum is slightly smoother with reduced leakage, but both
@@ -680,7 +670,7 @@ NW = 4  # time-halfbandwidth product
 K = 2 * NW - 1  # number of good tapers
 tapers = dpss(taper_N, NW, Kmax=K)
 
-fig, axes = plt.subplots(K, 1, figsize=(10, 8), sharex=True)
+fig, axes = plt.subplots(K, 1, figsize=(10, 8), sharex=True, constrained_layout=True)
 taper_time = np.arange(taper_N) / 1000  # time in seconds
 
 for i, ax in enumerate(axes):
@@ -691,7 +681,6 @@ for i, ax in enumerate(axes):
 
 axes[-1].set_xlabel("Time (s)")
 axes[0].set_title(f"DPSS Tapers (NW={NW}, K={K})")
-plt.tight_layout()
 
 # %% [markdown]
 # Each taper has a different shape but all are concentrated in the time window.
@@ -728,7 +717,7 @@ print(f"Nyquist frequency: {multitaper.nyquist_frequency:.1f} Hz")
 
 # %%
 # Compare multitaper vs single-taper (Hann) spectrum
-fig, ax = plt.subplots(figsize=(10, 4))
+fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
 
 ax.plot(
     freqs_lfp_pos,
@@ -755,7 +744,6 @@ ax.set(
 )
 ax.legend()
 ax.spines[["top", "right"]].set_visible(False)
-plt.tight_layout()
 
 # %% [markdown]
 # The multitaper spectrum (red) is much **smoother** than the single-taper spectrum
@@ -774,7 +762,7 @@ plt.tight_layout()
 
 # %%
 # Compare different time-bandwidth products
-fig, ax = plt.subplots(figsize=(10, 4))
+fig, ax = plt.subplots(figsize=(10, 4), constrained_layout=True)
 
 for nw, color in [(2, "#0072B2"), (4, "#D55E00")]:
     mt = Multitaper(
@@ -803,7 +791,6 @@ ax.set(
 )
 ax.legend()
 ax.spines[["top", "right"]].set_visible(False)
-plt.tight_layout()
 
 # %% [markdown]
 # With NW=2, the spectrum has finer frequency resolution but more variability.
@@ -860,7 +847,8 @@ freq_limit = 100  # Hz
 freq_mask = spec_freqs <= freq_limit
 
 fig, axes = plt.subplots(
-    2, 1, figsize=(12, 6), sharex=True, gridspec_kw={"height_ratios": [3, 1]}
+    2, 1, figsize=(12, 7), sharex=True, constrained_layout=True,
+    gridspec_kw={"height_ratios": [3, 1]},
 )
 
 # Spectrogram
@@ -889,15 +877,14 @@ if speed_mask_full.any():
 ax.set(xlabel="Time (s)", ylabel=f"Speed ({speed_interface.unit})")
 ax.spines[["top", "right"]].set_visible(False)
 
-# Attach colorbar to both axes so they stay aligned
-plt.colorbar(mesh, ax=axes.tolist(), label="Power (dB)", pad=0.02)
-plt.tight_layout()
+# Horizontal colorbar underneath the speed panel
+fig.colorbar(mesh, ax=axes.tolist(), location="bottom", label="Power (dB)", pad=0.05)
 
 # %% [markdown]
 # The spectrogram reveals how spectral content changes over time. Compare the
 # spectrogram with the speed trace below it:
 #
-# - **During running** (high speed): Theta power (~6–10 Hz) should be prominent
+# - **During running** (high speed): Theta power (~4–12 Hz) should be prominent
 # - **During immobility** (low speed): Theta power decreases; brief high-frequency
 #   events (sharp-wave ripples) may appear
 
@@ -912,7 +899,9 @@ plt.tight_layout()
 window_durations = [0.2, 1.0]  # seconds
 window_labels = ["200 ms (resolution=40 Hz)", "1000 ms (resolution=8 Hz)"]
 
-fig, axes = plt.subplots(len(window_durations), 1, figsize=(12, 6), sharex=True)
+fig, axes = plt.subplots(
+    len(window_durations), 1, figsize=(12, 6), sharex=True, constrained_layout=True,
+)
 
 for ax, win_dur, label in zip(axes, window_durations, window_labels):
     mt_win = Multitaper(
@@ -938,11 +927,10 @@ for ax, win_dur, label in zip(axes, window_durations, window_labels):
     )
     ax.set(ylabel="Frequency (Hz)", title=f"Window: {label}")
     ax.spines[["top", "right"]].set_visible(False)
-    plt.colorbar(mesh, ax=ax, label="Power (dB)")
+    fig.colorbar(mesh, ax=ax, label="Power (dB)")
 
 axes[-1].set_xlabel("Time (s)")
-fig.suptitle("Time-Frequency Tradeoff", y=1.02)
-plt.tight_layout()
+fig.suptitle("Time-Frequency Tradeoff")
 
 # %% [markdown]
 # - **Short windows** (200 ms, top): Good temporal resolution — you can see when
