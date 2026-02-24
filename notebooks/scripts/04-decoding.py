@@ -1004,6 +1004,7 @@ ax.plot(decoded_x[time_window], decoded_y[time_window], "r.", alpha=0.5, markers
 ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="Trajectory: True vs Decoded")
 ax.legend()
 ax.set_aspect("equal")
+ax.spines[["top", "right"]].set_visible(False)
 
 # Error over time
 ax = axes[1]

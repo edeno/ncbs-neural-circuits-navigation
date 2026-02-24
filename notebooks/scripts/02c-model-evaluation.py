@@ -534,7 +534,7 @@ for ax, (name, _) in zip(axes, models):
     ax.spines[["top", "right"]].set_visible(False)
 
 axes[0].set_ylabel("Empirical CDF")
-fig.suptitle(f"Unit {unit_idx}: KS Plots (Time-Rescaling Theorem)", y=1.02)
+fig.suptitle(f"Unit {unit_idx}: KS Plots (Time-Rescaling Theorem)")
 
 # %% [markdown]
 # ### Autocorrelation of Rescaled ISIs
@@ -584,7 +584,7 @@ for ax, (name, _) in zip(axes, models):
     ax.spines[["top", "right"]].set_visible(False)
 
 axes[0].set_ylabel("Autocorrelation")
-fig.suptitle(f"Unit {unit_idx}: Autocorrelation of Rescaled ISIs", y=1.02)
+fig.suptitle(f"Unit {unit_idx}: Autocorrelation of Rescaled ISIs")
 
 # %% [markdown]
 # ## Method 5: Residual Analysis
@@ -706,7 +706,7 @@ ax.set_xticklabels(["Leftward", "Rightward"])
 ax.set(ylabel="Mean residual", title="Residuals vs Direction")
 ax.spines[["top", "right"]].set_visible(False)
 
-fig.suptitle(f"Unit {unit_idx}: Residual Analysis ({best_name})", y=1.02)
+fig.suptitle(f"Unit {unit_idx}: Residual Analysis ({best_name})")
 
 # %% [markdown]
 # ### Temporal Autocorrelation of Residuals
@@ -914,7 +914,7 @@ for col, (name, res) in enumerate([("Constant", results_0), ("Position + Speed +
     rescaled.plot_rescaled_ISI_autocorrelation(ax=axes[1, col])
     axes[1, col].set_title(f"{name}")
 
-fig.suptitle(f"Unit {unit_idx}: time_rescale Diagnostics", y=1.02)
+fig.suptitle(f"Unit {unit_idx}: time_rescale Diagnostics")
 
 # %% [markdown]
 # The `time_rescale` package also supports:

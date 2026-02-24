@@ -194,6 +194,7 @@ ax.axvline(position_timestamps.min(), color="green", linestyle="--", label="Star
 ax.axvline(position_timestamps.max(), color="red", linestyle="--", label="End")
 ax.set(xlabel="Time (s)", title=f"Spike Raster for Unit {unit_idx}")
 ax.legend()
+ax.spines[["top", "right"]].set_visible(False)
 
 # %% [markdown]
 # ## Inter-Spike Interval (ISI) Distribution
@@ -487,7 +488,7 @@ for ax, bin_size in zip(axes, bin_sizes):
     ax.spines[["top", "right"]].set_visible(False)
 
 axes[-1].set_xlabel("Time from trial start (s)")
-fig.suptitle(f"Unit {unit_idx}: Effect of Bin Size on PSTH (Left Trials)", y=1.02)
+fig.suptitle(f"Unit {unit_idx}: Effect of Bin Size on PSTH (Left Trials)")
 
 # %% [markdown]
 # Notice how smaller bins reveal finer temporal structure but are noisier, while
@@ -544,7 +545,7 @@ for ax, bw_ms in zip(axes, bandwidths_ms):
     ax.spines[["top", "right"]].set_visible(False)
 
 axes[-1].set_xlabel("Time from trial start (s)")
-fig.suptitle(f"Unit {unit_idx}: Kernel Density Estimation (Left Trials)", y=1.02)
+fig.suptitle(f"Unit {unit_idx}: Kernel Density Estimation (Left Trials)")
 
 # %% [markdown]
 # Unlike binning, KDE places a Gaussian kernel centered at each spike time and sums
@@ -615,6 +616,7 @@ ax.scatter(
 ax.set(xlabel="X Position (cm)", ylabel="Y Position (cm)", title=f"Spatial Firing Map for Unit {unit_idx}")
 ax.legend()
 ax.set_aspect("equal", adjustable="box")  # ensure 1:1 aspect ratio
+ax.spines[["top", "right"]].set_visible(False)
 
 # %% [markdown]
 # ## Spatial Binning: From Scatter to Heatmap
