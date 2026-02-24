@@ -21,6 +21,7 @@ project:
         - file: notebooks/02b-poisson-regression.ipynb
         - file: notebooks/02c-model-evaluation.ipynb
         - file: notebooks/03a-spectral-lfp.ipynb
+        - file: notebooks/03b-filtering-coherence.ipynb
         - file: notebooks/04-decoding.ipynb
         - file: notebooks/05-clusterless-decoding.ipynb
 
