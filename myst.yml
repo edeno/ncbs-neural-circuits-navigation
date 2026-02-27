@@ -23,8 +23,8 @@ project:
         - file: notebooks/03a-spectral-lfp.ipynb
         - file: notebooks/03b-filtering-coherence.ipynb
         - file: notebooks/03c-spike-field-coupling.ipynb
-        - file: notebooks/04-decoding.ipynb
-        - file: notebooks/05-clusterless-decoding.ipynb
+        - file: notebooks/04a-decoding.ipynb
+        - file: notebooks/04b-clusterless-decoding.ipynb
 
 site:
   template: book-theme

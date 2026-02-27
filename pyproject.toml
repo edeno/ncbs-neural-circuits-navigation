@@ -4,6 +4,11 @@ version = "0.1.0"
 description = "Course materials for Neural Circuits for Navigation: Anatomy, Physiology, and Computational Methods"
 readme = "README.md"
 requires-python = ">=3.12"
+license = "MIT"
+authors = [
+    { name = "Eric Denovellis" },
+    { name = "Abhilasha Joshi" },
+]
 dependencies = [
     "numpy",
     "scipy",

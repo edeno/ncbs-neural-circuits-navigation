@@ -19,9 +19,9 @@ Notebooks are in `notebooks/` and numbered by week:
 - `03a-spectral-lfp.ipynb` - Week 3a: LFP and Spectral Analysis
 - `03b-filtering-coherence.ipynb` - Week 3b: Filtering, Hilbert Transform, and Coherence
 - `03c-spike-field-coupling.ipynb` - Week 3c: Spike-Field Coupling, Phase-Based Measures, and Cross-Frequency Coupling
-- `04-decoding.ipynb` - Week 4: Decoding + Open data use and visualization
-- `05-clusterless-decoding.ipynb` - Week 5: Clusterless Decoding Approaches
-- Week 6: Project + Presentation
+- `04a-decoding.ipynb` - Week 4a: Decoding + Open data use and visualization
+- `04b-clusterless-decoding.ipynb` - Week 4b: Clusterless Decoding Approaches
+- Week 5: Project + Presentation
 
 ## Development Commands
 
@@ -57,12 +57,15 @@ Students can access materials three ways:
 ## Key Dependencies
 
 - **pynwb/hdmf**: Neurodata Without Borders format for neural data
+- **dandi/remfile/h5py**: Streaming NWB data from the DANDI archive
 - **numpy/scipy**: Numerical computing and signal processing
 - **matplotlib**: Visualization
-- **pandas**: Data manipulation
+- **pandas/xarray**: Data manipulation and labeled N-dimensional arrays
 - **statsmodels/patsy**: GLM fitting and formula interface
 - **spectral-connectivity**: Multitaper spectral estimation and connectivity
+- **time-rescale**: Point process model evaluation (time-rescaling theorem)
 - **jupyterlab**: Interactive notebooks
+- **jupytext**: Notebook/script pairing for version control
 - **jupyter-book**: Build course website
 
 ## Data Format
