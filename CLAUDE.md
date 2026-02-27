@@ -18,6 +18,7 @@ Notebooks are in `notebooks/` and numbered by week:
 - `02c-model-evaluation.ipynb` - Week 2c: Model Evaluation & Diagnostics
 - `03a-spectral-lfp.ipynb` - Week 3a: LFP and Spectral Analysis
 - `03b-filtering-coherence.ipynb` - Week 3b: Filtering, Hilbert Transform, and Coherence
+- `03c-spike-field-coupling.ipynb` - Week 3c: Spike-Field Coupling, Phase-Based Measures, and Cross-Frequency Coupling
 - `04-decoding.ipynb` - Week 4: Decoding + Open data use and visualization
 - `05-clusterless-decoding.ipynb` - Week 5: Clusterless Decoding Approaches
 - Week 6: Project + Presentation
