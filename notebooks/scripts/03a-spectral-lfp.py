@@ -35,7 +35,9 @@
 # 3. Understand Nyquist frequency and frequency bin spacing
 # 4. Apply windowing/tapering to reduce spectral leakage
 # 5. Compute multitaper spectral estimates using the `spectral_connectivity` package
-# 6. Generate and interpret spectrograms to track time-varying rhythms
+# 6. Compute and interpret confidence intervals on multitaper spectral estimates
+# 7. Characterize the 1/f spectral falloff in neural signals
+# 8. Generate and interpret spectrograms to track time-varying rhythms
 
 # %% [markdown]
 # ## Setup
@@ -73,7 +75,9 @@ from dandi.dandiapi import DandiAPIClient
 from pynwb import NWBHDF5IO
 from remfile import File as RemoteFile
 from scipy.signal.windows import dpss, hann
+from scipy.stats import linregress
 from spectral_connectivity import Connectivity, Multitaper
+from spectral_connectivity.statistics import power_confidence_intervals
 
 # %% [markdown]
 # ## Load Data from DANDI
@@ -797,6 +801,218 @@ ax.spines[["top", "right"]].set_visible(False)
 # want a stable overall picture (use higher NW).
 
 # %% [markdown]
+# ### Confidence Intervals on the Power Spectrum
+#
+# Each frequency bin in a multitaper power spectrum is a random variable — its
+# value would differ if we recorded a different segment of the same length. How
+# precise is our estimate?
+#
+# For a multitaper spectrum with $K$ tapers, the power estimate at each frequency
+# follows a **scaled chi-squared distribution** with $2K$ degrees of freedom.
+# This lets us compute exact confidence intervals:
+#
+# $$\frac{2K \, \hat{S}(f)}{\chi^2_{2K, \, 1-\alpha/2}} \leq S(f) \leq \frac{2K \, \hat{S}(f)}{\chi^2_{2K, \, \alpha/2}}$$
+#
+# More tapers → more degrees of freedom → **narrower confidence intervals**.
+# This is the payoff for the wider bandwidth (coarser frequency resolution)
+# that comes with more tapers.
+#
+# The `spectral_connectivity.statistics` module provides
+# `power_confidence_intervals` to compute these bounds.
+
+# %%
+# Compute 95% confidence intervals for the multitaper power spectrum (NW=4)
+# ci=0.975 gives a 95% two-tailed CI (2.5% in each tail)
+lower_ci, upper_ci = power_confidence_intervals(
+    n_tapers=multitaper.n_tapers,
+    power=mt_power,
+    ci=0.975,
+)
+
+fig, ax = plt.subplots(figsize=(10, 4), layout="constrained")
+
+ax.fill_between(
+    mt_freqs,
+    10 * np.log10(lower_ci),
+    10 * np.log10(upper_ci),
+    alpha=0.3,
+    color="steelblue",
+    label="95% CI",
+)
+ax.plot(
+    mt_freqs,
+    10 * np.log10(mt_power),
+    color="steelblue",
+    linewidth=1,
+    label=f"Multitaper (K={multitaper.n_tapers})",
+)
+ax.axvspan(4, 12, alpha=0.15, color="orange", label="Theta (4–12 Hz)")
+ax.set(
+    xlabel="Frequency (Hz)",
+    ylabel="Power (dB)",
+    title="Multitaper Power Spectrum with 95% Confidence Intervals",
+    xlim=(0, 100),
+)
+ax.legend()
+ax.spines[["top", "right"]].set_visible(False)
+
+# %% [markdown]
+# The confidence band is relatively narrow because we averaged over 7 tapers,
+# giving 14 degrees of freedom. But note that the CI is a **constant
+# multiplicative factor** at every frequency — in dB, it's the same width
+# everywhere. This means we can't shrink the CI at one frequency without
+# shrinking it everywhere (by using more tapers).
+
+# %%
+# Compare CI width for different numbers of tapers
+fig, ax = plt.subplots(figsize=(10, 4), layout="constrained")
+
+for nw, color in [(2, "#0072B2"), (4, "#D55E00")]:
+    mt_ci = Multitaper(
+        lfp_detrended[:, np.newaxis, np.newaxis],
+        sampling_frequency=lfp_rate,
+        time_halfbandwidth_product=nw,
+        detrend_type="constant",
+    )
+    conn_ci = Connectivity.from_multitaper(mt_ci)
+    power_ci = conn_ci.power().squeeze()
+    k = mt_ci.n_tapers
+
+    lower, upper = power_confidence_intervals(n_tapers=k, power=power_ci, ci=0.975)
+
+    ax.fill_between(
+        conn_ci.frequencies,
+        10 * np.log10(lower),
+        10 * np.log10(upper),
+        alpha=0.2,
+        color=color,
+    )
+    ax.plot(
+        conn_ci.frequencies,
+        10 * np.log10(power_ci),
+        linewidth=1,
+        color=color,
+        label=f"NW={nw} (K={k} tapers)",
+    )
+
+ax.axvspan(4, 12, alpha=0.15, color="orange", label="Theta (4–12 Hz)")
+ax.set(
+    xlabel="Frequency (Hz)",
+    ylabel="Power (dB)",
+    title="Confidence Intervals: Fewer vs. More Tapers",
+    xlim=(0, 50),
+)
+ax.legend()
+ax.spines[["top", "right"]].set_visible(False)
+
+# %% [markdown]
+# With NW=2 (3 tapers, blue), the confidence intervals are wide — the
+# spectrum is more uncertain at each frequency. With NW=4 (7 tapers, orange),
+# the CIs are much narrower. This is the statistical payoff for accepting
+# coarser frequency resolution.
+
+# %% [markdown]
+# ## The 1/f Spectral Falloff
+#
+# Look at the power spectrum on a **log-log scale** (log frequency vs. log
+# power). You'll see that most of the spectrum falls along a straight line
+# with a negative slope. This is the **1/f falloff** — a power-law decay
+# where power decreases with frequency:
+#
+# $$S(f) \propto \frac{1}{f^\beta}$$
+#
+# In log-log coordinates, this becomes a line with slope $-\beta$:
+#
+# $$\log S(f) = -\beta \log f + c$$
+#
+# This power-law decay is ubiquitous in neural signals. The exponent $\beta$
+# is typically between 1 and 3 and can vary with behavioral state, brain
+# region, and pathological conditions. Oscillatory peaks (like theta) appear
+# as bumps that rise above this overall trend.
+
+# %%
+# Plot the multitaper spectrum on a log-log scale
+# Start above 1 Hz to avoid DC and near-DC frequencies
+# (log10(0) is undefined; very low bins are dominated by drift)
+freq_mask_loglog = mt_freqs > 1
+
+fig, ax = plt.subplots(figsize=(10, 4), layout="constrained")
+
+ax.plot(
+    mt_freqs[freq_mask_loglog],
+    10 * np.log10(mt_power[freq_mask_loglog]),
+    color="black",
+    linewidth=1,
+)
+ax.set(
+    xlabel="Frequency (Hz)",
+    ylabel="Power (dB)",
+    title="Power Spectrum on Log-Log Scale",
+    xscale="log",
+)
+ax.spines[["top", "right"]].set_visible(False)
+
+# %% [markdown]
+# The spectrum is roughly linear in log-log space, confirming the power-law
+# relationship. The theta peak protrudes above the overall trend. Let's
+# quantify the slope by fitting a line.
+
+# %%
+# Fit the 1/f slope in log-log space
+# Exclude the theta band (4-12 Hz) so the oscillatory peak doesn't bias the fit
+fit_mask = freq_mask_loglog & ~((mt_freqs >= 4) & (mt_freqs <= 12))
+
+log_freqs = np.log10(mt_freqs[fit_mask])
+log_power = np.log10(mt_power[fit_mask])
+
+slope, intercept, r_value, p_value, std_err = linregress(log_freqs, log_power)
+
+# Reconstruct the fit line across all frequencies
+fit_line = 10 ** (intercept + slope * np.log10(mt_freqs[freq_mask_loglog]))
+
+print(f"1/f exponent (β): {-slope:.2f}")
+print(f"R² of fit: {r_value**2:.3f}")
+
+# %%
+# Overlay the 1/f fit on the spectrum
+fig, ax = plt.subplots(figsize=(10, 4), layout="constrained")
+
+ax.plot(
+    mt_freqs[freq_mask_loglog],
+    10 * np.log10(mt_power[freq_mask_loglog]),
+    color="black",
+    linewidth=1,
+    label="Spectrum",
+)
+ax.plot(
+    mt_freqs[freq_mask_loglog],
+    10 * np.log10(fit_line),
+    color="red",
+    linewidth=2,
+    linestyle="--",
+    label=f"1/f fit (β = {-slope:.2f})",
+)
+ax.axvspan(4, 12, alpha=0.15, color="orange", label="Theta (4–12 Hz)")
+ax.set(
+    xlabel="Frequency (Hz)",
+    ylabel="Power (dB)",
+    title="Power Spectrum with 1/f Fit",
+    xscale="log",
+)
+ax.legend()
+ax.spines[["top", "right"]].set_visible(False)
+
+# %% [markdown]
+# The red dashed line captures the overall power-law trend. The theta peak
+# clearly rises above this line, confirming it as a genuine oscillatory
+# feature rather than simply part of the broadband falloff.
+#
+# The 1/f exponent $\beta$ summarizes how steeply power falls off with
+# frequency. Keeping this trend in mind is important when interpreting
+# power spectra — low-frequency power is always higher than high-frequency
+# power simply due to the 1/f structure, independent of any oscillations.
+
+# %% [markdown]
 # ## Spectrogram: Time-Varying Spectrum
 #
 # The power spectrum above averages over the entire 60-second segment, but brain
@@ -972,6 +1188,12 @@ fig.suptitle("Time-Frequency Tradeoff")
 #    Can you identify transient high-frequency events (100–250 Hz) that might
 #    correspond to sharp-wave ripples? You may need to adjust the frequency range
 #    and use shorter time windows.
+#
+# 7. **Aperiodic exponent and behavior**: Compute the 1/f slope separately for
+#    running (speed > 4 cm/s) and immobility (speed < 1 cm/s) epochs. Does the
+#    aperiodic exponent change with behavioral state?
+#    (Hint: extract LFP segments for each state, compute multitaper spectra, then
+#    fit the aperiodic component as shown above.)
 
 # %% [markdown]
 # ## Summary
@@ -983,8 +1205,10 @@ fig.suptitle("Time-Frequency Tradeoff")
 # 3. **Identify key spectral quantities**: Nyquist frequency and frequency bin spacing
 # 4. **Understand spectral leakage** and how tapering (Hann window) reduces sidelobes
 # 5. **Apply multitaper estimation** using DPSS tapers via `spectral_connectivity`
-# 6. **Generate spectrograms** to visualize time-varying spectral content
-# 7. **Appreciate the time-frequency tradeoff** in spectrogram analysis
+# 6. **Compute confidence intervals** on multitaper spectral estimates
+# 7. **Characterize the 1/f spectral falloff** in neural signals
+# 8. **Generate spectrograms** to visualize time-varying spectral content
+# 9. **Appreciate the time-frequency tradeoff** in spectrogram analysis
 #
 # ### Key Concepts
 #
@@ -997,6 +1221,8 @@ fig.suptitle("Time-Frequency Tradeoff")
 # | Spectral leakage | Power smearing from finite observation window |
 # | Taper / window | Function applied to data to reduce leakage (e.g., Hann) |
 # | Multitaper (DPSS) | Multiple orthogonal tapers averaged for lower variance |
+# | Confidence interval | Chi-squared bounds on power; narrows with more tapers |
+# | 1/f spectral falloff | Power-law decay $S(f) \propto 1/f^\beta$; ubiquitous in neural signals |
 # | Spectrogram | Time-varying power spectrum (power vs. time and frequency) |
 # | Time-frequency tradeoff | Short windows = good time resolution, coarse frequency bins |
 #
@@ -1006,7 +1232,10 @@ fig.suptitle("Time-Frequency Tradeoff")
 # - **`scipy.signal.windows.hann`** and **`scipy.signal.windows.dpss`** for window functions
 # - **`spectral_connectivity.Multitaper`** for multitaper spectral estimation
 # - **`spectral_connectivity.Connectivity`** for computing power and spectrograms
+# - **`spectral_connectivity.statistics.power_confidence_intervals`** for chi-squared CIs
+# - **`scipy.stats.linregress`** for fitting the 1/f spectral slope
 # - **`ax.pcolormesh`** for plotting 2D spectrograms
+# - **`ax.fill_between`** for plotting confidence bands
 # - **Decibel scale** (`10 * np.log10(power)`) for visualizing spectral data
 #
 # ### Next Steps
