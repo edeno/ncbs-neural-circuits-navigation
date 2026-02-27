@@ -26,3 +26,8 @@ dependencies = [
     "jupytext>=1.16.0",
     "time-rescale>=0.2.2",
 ]
+
+[dependency-groups]
+dev = [
+    "pypdf>=6.7.3",
+]
