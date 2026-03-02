@@ -14,7 +14,7 @@
 # ---
 
 # %% [markdown]
-# # Week 4: Bayesian Decoding of Position from Neural Activity
+# # Week 4a: Bayesian Decoding of Position from Neural Activity
 #
 # This notebook introduces **neural decoding** - the inverse problem of inferring
 # what an animal is doing from its neural activity. While encoding models ask
@@ -44,6 +44,7 @@
 # 4. Understand the role of time bins with no spikes in decoding
 # 5. Evaluate decoder performance and understand what limits accuracy
 # 6. Appreciate how bin size affects the bias-variance tradeoff
+# 7. Implement a state space decoder that uses temporal continuity for smoother estimates
 
 # %% [markdown]
 # ## Setup
@@ -81,6 +82,7 @@ from numpy.typing import NDArray
 from pynwb import NWBHDF5IO
 from pynwb.misc import Units
 from remfile import File as RemoteFile
+from scipy import sparse
 from scipy.ndimage import gaussian_filter
 
 # %% [markdown]
@@ -1220,6 +1222,320 @@ ax.set_title("Posterior (occupancy prior)")
 fig.colorbar(im, ax=ax, label="P(position)")
 
 # %% [markdown]
+# ## Part 9: State Space Decoding — Using Temporal Continuity
+#
+# ### What is a Latent State?
+#
+# So far our decoder treats each time bin independently — it asks "what is
+# the most likely position *right now*?" without considering where the animal
+# was a moment ago. But position is **continuous**: the animal can't teleport
+# across the maze between 25 ms time bins.
+#
+# We can formalize this by thinking about the brain's **latent state**. A
+# latent state is a variable that is *not directly observed*, but must be
+# inferred from data through a mathematical model. Here, the latent state is
+# the animal's position $x_t$. We observe spike counts (the data) and want to
+# infer position (the latent state).
+#
+# The key insight of the **state space model** is that we combine two sources
+# of information:
+#
+# 1. **Data model (likelihood)**: How likely are the observed spikes given each
+#    position? This is the Poisson likelihood we already built in Parts 1–3.
+#
+# 2. **Movement model (transition)**: How likely is the animal to be at position
+#    $x_t$ given it was at position $x_{t-1}$? We model this as a random walk —
+#    a Gaussian centered on the previous position.
+#
+# ### The State Space Recursion
+#
+# The state space decoder updates the posterior recursively:
+#
+# $$p(x_t \mid \text{spikes}_{1:t}) \propto \underbrace{p(\text{spikes}_t \mid x_t)}_{\text{likelihood}} \cdot \sum_{x_{t-1}} \underbrace{p(x_t \mid x_{t-1})}_{\text{transition}} \cdot \underbrace{p(x_{t-1} \mid \text{spikes}_{1:t-1})}_{\text{previous posterior}}$$
+#
+# This breaks into two steps:
+#
+# 1. **Predict**: Propagate the previous posterior through the transition model
+#    to get a *predictive distribution* — where we expect the animal to be
+#    before seeing new spikes: $p_{\text{pred}}(x_t) = \sum_{x_{t-1}} p(x_t \mid x_{t-1}) \cdot p(x_{t-1} \mid \text{spikes}_{1:t-1})$
+#
+# 2. **Update**: Multiply the prediction by the current likelihood and
+#    normalize: $p(x_t \mid \text{spikes}_{1:t}) \propto p(\text{spikes}_t \mid x_t) \cdot p_{\text{pred}}(x_t)$
+#
+# ### Connection to Other Models
+#
+# This framework encompasses several well-known models:
+#
+# - **Hidden Markov Model (HMM)**: Discrete latent states, discrete transitions
+# - **Kalman filter/smoother**: Continuous latent states, Gaussian distributions
+# - **Our approach**: Continuous position approximated on a discrete grid
+#
+# **References**: Zhang, Ginzburg, McNaughton & Sejnowski (1998);
+# Brown, Frank, Tang, Quirk & Wilson (1998)
+
+# %% [markdown]
+# ### The Random Walk Transition Model
+#
+# The transition matrix $\mathbf{T}$ encodes how far the animal can plausibly
+# move in one time step. Entry $T_{ij} = p(x_t = \text{bin}_i \mid x_{t-1} = \text{bin}_j)$
+# gives the probability of moving from bin $j$ to bin $i$.
+#
+# We model this as a **Gaussian random walk**: each column of the transition
+# matrix is a 2D Gaussian centered on that bin, so nearby bins receive most
+# of the probability mass. The width parameter $\sigma$ controls how far the
+# animal can move per time step.
+#
+# Since we have a discrete grid of position bins, the predict step is simply
+# a matrix-vector multiplication: $\mathbf{p}_{\text{pred}} = \mathbf{T} \cdot \mathbf{p}_{\text{prev}}$.
+# The transition matrix is **sparse** — only bins within a few $\sigma$ of each
+# other have nonzero transition probability.
+
+# %%
+def create_transition_matrix(
+    n_x_bins: int,
+    n_y_bins: int,
+    sigma: float,
+) -> sparse.csc_matrix:
+    """Create a sparse transition matrix for a 2D random walk.
+
+    Each column j is a 2D Gaussian centered on bin j (the "source" bin),
+    giving the probability of transitioning to each other bin in one time step.
+
+    Parameters
+    ----------
+    n_x_bins : int
+        Number of spatial bins in x dimension
+    n_y_bins : int
+        Number of spatial bins in y dimension
+    sigma : float
+        Standard deviation of the Gaussian transition in units of bins.
+        Controls how far the animal can move per time step.
+
+    Returns
+    -------
+    scipy.sparse.csc_matrix
+        Transition matrix, shape (n_bins, n_bins) where n_bins = n_x_bins * n_y_bins.
+        Column j sums to 1 (each column is a probability distribution).
+    """
+    n_bins = n_x_bins * n_y_bins
+    radius = int(np.ceil(3 * sigma))
+
+    rows = []
+    cols = []
+    vals = []
+
+    for j in range(n_bins):
+        # Convert flat index to 2D
+        jx = j // n_y_bins
+        jy = j % n_y_bins
+
+        # Only consider bins within the kernel radius
+        x_lo = max(0, jx - radius)
+        x_hi = min(n_x_bins, jx + radius + 1)
+        y_lo = max(0, jy - radius)
+        y_hi = min(n_y_bins, jy + radius + 1)
+
+        # Compute Gaussian weights for nearby bins
+        local_rows = []
+        local_vals = []
+        for ix in range(x_lo, x_hi):
+            for iy in range(y_lo, y_hi):
+                dist_sq = (ix - jx) ** 2 + (iy - jy) ** 2
+                weight = np.exp(-dist_sq / (2 * sigma**2))
+                flat_idx = ix * n_y_bins + iy
+                local_rows.append(flat_idx)
+                local_vals.append(weight)
+
+        # Normalize so column sums to 1
+        total = sum(local_vals)
+        for r, v in zip(local_rows, local_vals):
+            rows.append(r)
+            cols.append(j)
+            vals.append(v / total)
+
+    return sparse.csc_matrix((vals, (rows, cols)), shape=(n_bins, n_bins))
+
+
+# %%
+def state_space_filter(
+    log_likelihood: NDArray[np.floating],
+    transition_matrix: sparse.csc_matrix,
+) -> NDArray[np.floating]:
+    """Run the causal state space filter (forward pass).
+
+    For each time step:
+      1. Predict: multiply transition matrix by previous posterior
+      2. Update: multiply prediction by likelihood, normalize
+
+    Parameters
+    ----------
+    log_likelihood : np.ndarray
+        Log-likelihood from the Poisson model, shape (n_time_bins, n_x_bins, n_y_bins)
+    transition_matrix : scipy.sparse.csc_matrix
+        Sparse transition matrix, shape (n_bins, n_bins)
+
+    Returns
+    -------
+    np.ndarray
+        Filtered posterior, shape (n_time_bins, n_x_bins, n_y_bins)
+    """
+    n_time_bins, n_x_bins, n_y_bins = log_likelihood.shape
+    n_bins = n_x_bins * n_y_bins
+    posterior = np.zeros((n_time_bins, n_x_bins, n_y_bins))
+
+    # Initialize with uniform prior
+    prev_posterior = np.ones(n_bins) / n_bins
+
+    for t in range(n_time_bins):
+        # Step 1: PREDICT — propagate previous posterior through transition
+        predicted = transition_matrix @ prev_posterior
+        predicted = np.maximum(predicted, 1e-10)  # Prevent zeros
+
+        # Step 2: UPDATE — multiply by likelihood
+        log_pred = np.log(predicted).reshape(n_x_bins, n_y_bins)
+        log_post = log_likelihood[t] + log_pred
+
+        # Normalize using log-sum-exp trick
+        log_max = np.max(log_post)
+        post = np.exp(log_post - log_max)
+        post_sum = post.sum()
+        if post_sum > 0:
+            post /= post_sum
+        else:
+            post = np.ones((n_x_bins, n_y_bins)) / n_bins
+
+        posterior[t] = post
+        prev_posterior = post.ravel()
+
+    return posterior
+
+
+# %%
+# Define transition model parameters
+TRANSITION_SIGMA = 2.0  # Standard deviation in spatial bins (~6 cm)
+
+print("Building transition matrix...")
+transition_matrix = create_transition_matrix(n_x_bins, n_y_bins, TRANSITION_SIGMA)
+print(f"Transition matrix shape: {transition_matrix.shape}")
+print(f"Non-zero entries: {transition_matrix.nnz} / {transition_matrix.shape[0]**2} "
+      f"({100 * transition_matrix.nnz / transition_matrix.shape[0]**2:.1f}%)")
+print(f"Transition sigma: {TRANSITION_SIGMA} bins = {TRANSITION_SIGMA * POS_BIN_SIZE} cm")
+
+# %%
+# Run the state space filter
+print("Running state space filter...")
+posterior_ssm = state_space_filter(log_likelihood, transition_matrix)
+
+# Decode using MAP (reuse existing function)
+decoded_x_ssm, decoded_y_ssm = decode_map(posterior_ssm, x_bin_centers, y_bin_centers)
+
+# Compute error
+error_ssm = np.sqrt((decoded_x_ssm - true_x) ** 2 + (decoded_y_ssm - true_y) ** 2)
+error_ssm_valid = error_ssm[valid_mask]
+
+print(f"\nComparison:")
+print(f"  Memoryless (uniform prior):  Mean error = {np.mean(error_valid):.1f} cm, "
+      f"Median = {np.median(error_valid):.1f} cm")
+print(f"  State space (random walk):   Mean error = {np.mean(error_ssm_valid):.1f} cm, "
+      f"Median = {np.median(error_ssm_valid):.1f} cm")
+
+# %%
+# Visualize trajectory comparison
+fig, axes = plt.subplots(1, 3, figsize=(16, 5), layout="constrained")
+
+# Use same time window as Part 6
+time_window = slice(t_start, t_end)
+time_slice = time_bin_centers[time_window]
+
+ax = axes[0]
+ax.plot(true_x[time_window], true_y[time_window], "b-", alpha=0.7, linewidth=1, label="True")
+ax.plot(decoded_x[time_window], decoded_y[time_window], "r.", alpha=0.5, markersize=3, label="Decoded")
+ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="Memoryless Decoder")
+ax.legend()
+ax.set_aspect("equal")
+ax.spines[["top", "right"]].set_visible(False)
+
+ax = axes[1]
+ax.plot(true_x[time_window], true_y[time_window], "b-", alpha=0.7, linewidth=1, label="True")
+ax.plot(decoded_x_ssm[time_window], decoded_y_ssm[time_window], "r.", alpha=0.5, markersize=3, label="Decoded")
+ax.set(xlabel="X position (cm)", ylabel="Y position (cm)", title="State Space Decoder")
+ax.legend()
+ax.set_aspect("equal")
+ax.spines[["top", "right"]].set_visible(False)
+
+ax = axes[2]
+ax.plot(time_slice - time_slice[0], error[time_window], "k-", alpha=0.5, linewidth=0.5, label="Memoryless")
+ax.plot(time_slice - time_slice[0], error_ssm[time_window], "steelblue", alpha=0.7, linewidth=0.5, label="State space")
+ax.axhline(np.median(error_valid), color="k", linestyle="--", alpha=0.3)
+ax.axhline(np.median(error_ssm_valid), color="steelblue", linestyle="--", alpha=0.5)
+ax.set(xlabel="Time (s)", ylabel="Decoding error (cm)", title="Error Over Time")
+ax.legend()
+ax.spines[["top", "right"]].set_visible(False)
+
+# %%
+# Compare posteriors at a single time bin
+fig, axes = plt.subplots(1, 3, figsize=(16, 4), layout="constrained")
+
+t_example_ssm = many_spike_bins[len(many_spike_bins) // 4]
+
+ax = axes[0]
+im = ax.imshow(
+    posterior[t_example_ssm].T,
+    origin="lower",
+    extent=[min_x, max_x, min_y, max_y],
+    cmap="hot",
+    aspect="equal",
+)
+ax.plot(true_x[t_example_ssm], true_y[t_example_ssm], "c*", markersize=15, label="True")
+ax.plot(decoded_x[t_example_ssm], decoded_y[t_example_ssm], "go", markersize=10, label="Decoded")
+ax.set_title("Memoryless posterior")
+ax.legend(loc="upper right")
+fig.colorbar(im, ax=ax, label="P(position)")
+
+ax = axes[1]
+im = ax.imshow(
+    posterior_ssm[t_example_ssm].T,
+    origin="lower",
+    extent=[min_x, max_x, min_y, max_y],
+    cmap="hot",
+    aspect="equal",
+)
+ax.plot(true_x[t_example_ssm], true_y[t_example_ssm], "c*", markersize=15, label="True")
+ax.plot(decoded_x_ssm[t_example_ssm], decoded_y_ssm[t_example_ssm], "go", markersize=10, label="Decoded")
+ax.set_title("State space posterior")
+ax.legend(loc="upper right")
+fig.colorbar(im, ax=ax, label="P(position)")
+
+# Compare entropy over time
+posterior_ssm_flat = posterior_ssm.reshape(len(posterior_ssm), -1)
+with np.errstate(divide="ignore", invalid="ignore"):
+    entropy_ssm = -np.sum(posterior_ssm_flat * np.log(posterior_ssm_flat + 1e-10), axis=1)
+
+ax = axes[2]
+# Subsample for cleaner visualization
+step = max(1, len(entropy) // 2000)
+ax.scatter(np.arange(len(entropy))[::step], entropy[::step], alpha=0.3, s=3, label="Memoryless", color="k")
+ax.scatter(np.arange(len(entropy_ssm))[::step], entropy_ssm[::step], alpha=0.3, s=3, label="State space", color="steelblue")
+ax.set(xlabel="Time bin", ylabel="Posterior entropy", title="State space → Lower uncertainty")
+ax.legend()
+ax.spines[["top", "right"]].set_visible(False)
+
+# %% [markdown]
+# ### Effect of Transition Sigma
+#
+# The transition width $\sigma$ controls the bias-variance tradeoff (just like
+# the time bin size in Part 7):
+#
+# - **Large $\sigma$** → the transition allows large jumps → approaches the
+#   memoryless decoder (no temporal smoothing)
+# - **Small $\sigma$** → the transition is very narrow → overly constrains
+#   movement, can't track fast position changes
+#
+# The optimal $\sigma$ depends on the animal's speed and the time bin size.
+# A good starting point is $\sigma \approx v_{\text{max}} \cdot \Delta t / \text{bin size}$,
+# where $v_{\text{max}}$ is the animal's typical running speed.
+
+# %% [markdown]
 # ## Summary
 #
 # In this notebook, we learned how to:
@@ -1231,6 +1547,8 @@ fig.colorbar(im, ax=ax, label="P(position)")
 # 5. **Evaluate decoder performance** as a function of spike count
 # 6. **Appreciate the bin size tradeoff** between resolution and reliability
 # 7. **Compare maximum likelihood and Bayesian approaches** with different priors
+# 8. **Implement a state space decoder** that leverages temporal continuity for
+#    smoother, more accurate position estimates
 #
 # ### Key Concepts
 #
@@ -1243,17 +1561,26 @@ fig.colorbar(im, ax=ax, label="P(position)")
 # | MAP estimate | Position with highest posterior probability |
 # | No-spike information | Absence of spikes rules out place field locations |
 # | Bin size tradeoff | Small = high variance; Large = low resolution |
+# | Latent state | Unobserved variable inferred from data (here, position) |
+# | State space model | Combines data model (likelihood) with dynamics model (transition) |
+# | Transition matrix | Discrete probability of moving between position bins per time step |
+# | Predict-update recursion | Propagate through transition, then multiply by likelihood |
 #
 # ### The Decoding Algorithm
 #
 # ```
-# For each time bin t:
-#     For each position x:
-#         log_likelihood[x] = sum over neurons i:
-#             n_i[t] * log(rate_i[x] * dt) - rate_i[x] * dt
+# Memoryless decoder:
+#   For each time bin t:
+#       log_likelihood[x] = sum over neurons i:
+#           n_i[t] * log(rate_i[x] * dt) - rate_i[x] * dt
+#       posterior = normalize(exp(log_likelihood - max(log_likelihood)))
+#       decoded_position = argmax(posterior)
 #
-#     posterior = normalize(exp(log_likelihood - max(log_likelihood)))
-#     decoded_position = argmax(posterior)
+# State space decoder:
+#   For each time bin t:
+#       predicted = transition_matrix @ previous_posterior
+#       posterior = normalize(predicted * likelihood)
+#       decoded_position = argmax(posterior)
 # ```
 #
 # ### Python Techniques Used
@@ -1262,12 +1589,13 @@ fig.colorbar(im, ax=ax, label="P(position)")
 # - **Log-space arithmetic** for numerical stability
 # - **Gaussian smoothing** (`scipy.ndimage.gaussian_filter`) for rate maps
 # - **`np.errstate`** for suppressing divide-by-zero warnings
+# - **Sparse matrices** (`scipy.sparse`) for efficient transition matrix operations
 #
 # ### Next Steps
 #
-# In Week 5, we'll explore **clusterless decoding**, which bypasses spike sorting
-# entirely and decodes directly from spike waveform features. This approach can
-# capture information from neurons that are difficult to isolate.
+# In notebook 04b, we'll explore **clusterless decoding**, which bypasses spike
+# sorting entirely and decodes directly from spike waveform features. This
+# approach can capture information from neurons that are difficult to isolate.
 
 # %% [markdown]
 # ## Exercises
@@ -1292,8 +1620,14 @@ fig.colorbar(im, ax=ax, label="P(position)")
 # 6. **Cross-validation**: Split the data into training and test sets. Estimate
 #    place fields on training data and decode test data. Does this change accuracy?
 #
-# 7. **Continuity constraint**: Implement a simple continuity prior that penalizes
-#    large jumps between consecutive decoded positions.
+# 7. **Transition sigma sweep**: Try different values of `TRANSITION_SIGMA`
+#    (0.5, 1, 2, 3, 5, 10). Plot mean error vs sigma. What is the optimal value?
+#    How does it relate to the animal's running speed?
+#
+# 8. **Acausal smoother**: The state space filter we implemented is *causal* — it
+#    only uses past data. Implement a backward pass that runs the filter in
+#    reverse, then combine forward and backward estimates. Does this further
+#    improve accuracy? (Hint: This is analogous to `filtfilt` from Week 3b.)
 
 # %% [markdown]
 # ## Cleanup
